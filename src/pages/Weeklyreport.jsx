@@ -96,7 +96,7 @@ const Weeklyreport = () => {
                      + "&endDt=" + endDt.replace(/-/gi, "")
                      + "&page=" + page;
 
-        fetch("http://localhost:8080/ims/report/weekly/list" + queryStr).then((res) => res.json()).then((data) => {
+        fetch("http://218.151.225.142:8080/ims/report/weekly/list" + queryStr).then((res) => res.json()).then((data) => {
             console.log(data);
             setRowData(data.content);
 
