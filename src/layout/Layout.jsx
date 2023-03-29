@@ -8,7 +8,7 @@ const Layout = () => {
     return (
         <div>
             <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" className="p-3">
-                <Container>
+                <Container style={{paddingLeft: "0px"}}>
                     <Navbar.Brand href="#home">
                         <h3 style={{fontWeight: "bold", float:"left"}}>INF</h3>
                         <h3 style={{fontWeight: "bold", float:"left", color:"red"}}>O</h3>
