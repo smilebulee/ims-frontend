@@ -162,7 +162,7 @@ const Weeklyreport = () => {
             formData.append("files", fileList[i]);
         }
         
-        fetch("http://localhost:8080/ims/report/weekly/upload", {
+        fetch("http://218.151.225.142:8080/ims/report/weekly/upload", {
             method: 'POST',
             body: formData,
 
