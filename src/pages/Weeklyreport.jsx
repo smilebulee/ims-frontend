@@ -29,7 +29,7 @@ const Weeklyreport = () => {
         return dateStr.substring(0, 4) + '-' + dateStr.substring(4, 6) + '-' + dateStr.substring(6);
     };
     const columnDefs = [
-        {headerName:"보고일일일일", field:"reportDt", width:120, pinned: 'left', cellRenderer: (data) => { return dateFormatter(data.value);}},
+        {headerName:"보고일", field:"reportDt", width:120, pinned: 'left', cellRenderer: (data) => { return dateFormatter(data.value);}},
         {headerName:"사업부", field:"upDeptNm", width:100, pinned: 'left'},
         {headerName:"팀", field:"deptNm", width:100, pinned: 'left'},
         // {headerName:"메일ID", field:"mailId", width:100, pinned: 'left'},
