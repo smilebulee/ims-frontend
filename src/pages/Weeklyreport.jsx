@@ -133,6 +133,7 @@ const Weeklyreport = () => {
                 );
             }
             console.log("============= items", items);
+            console.log("rowData ===> ", rowData);
             setPageList(items);
 
         }).catch((error) => {
@@ -225,11 +226,11 @@ const Weeklyreport = () => {
                         </Col>
                         <Form.Label column xs={1}>보고일</Form.Label>
                         <Col xs={2}>
-                            <Form.Control type="date" placeholder="YYYY-MM-DD" name="startDt" onChange={e => setStartDt(e.target.value)} />
+                            <Form.Control type="date" placeholder="YYYY-MM-DD" name="startDt" max={new Date('2999-12-31 23:59:59').toISOString().split('T')[0]} onChange={e => setStartDt(e.target.value)} />
                         </Col> 
                         <Col xs={"auto"}>~</Col>                   
                         <Col xs={2}>
-                            <Form.Control type="date" placeholder="YYYY-MM-DD" name="endDt" onChange={e => setEndDt(e.target.value)} />
+                            <Form.Control type="date" placeholder="YYYY-MM-DD" name="endDt" max={new Date('2999-12-31 23:59:59').toISOString().split('T')[0]} onChange={e => setEndDt(e.target.value)} />
                         </Col>
                     </Form.Group>
 
