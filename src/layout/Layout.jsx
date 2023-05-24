@@ -9,7 +9,7 @@ const Layout = () => {
         <div>
             <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" className="p-3">
                 <Container style={{paddingLeft: "0px"}}>
-                    <Navbar.Brand href="#home" style={{marginLeft: "-50px"}}>
+                    <Navbar.Brand href="#home" style={{marginLeft: "-50px", marginRight: "50px"}}>
                         <h3 style={{fontWeight: "bold", float:"left"}}>INF</h3>
                         <h3 style={{fontWeight: "bold", float:"left", color:"red"}}>O</h3>
                         <h3 style={{fontWeight: "bold", float:"left"}}>GEN IMS</h3>
