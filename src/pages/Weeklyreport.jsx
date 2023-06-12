@@ -10,6 +10,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import Pagination from 'react-bootstrap/Pagination';
 import Modal from 'react-bootstrap/Modal';
+import { useSearchParams } from "react-router-dom";
 
 
 const Weeklyreport = () => {    
@@ -69,11 +70,24 @@ const Weeklyreport = () => {
     const showModal = () => setShow(true);
     const closeModal = () => setShow(false);
 
-
-    const getList = (e) => {
+    const [searchParams] = useSearchParams();
+    const queryList = [...searchParams];
+    
+    const getList = (e) => {       
         console.log(e);
         e.preventDefault();
-        fetchData(1);
+
+        if(searchParams.get('authCd') == null || (searchParams.get('authCd') != 'ADMIN' && searchParams.get('authCd') != 'USER')){
+            alert('권한정보가 없습니다.');
+            return false;
+        }
+
+        if(searchParams.get('authCd') == 'USER' && searchParams.get('email') == null){
+            alert('계정정보가 없습니다.');
+            return false;
+        }
+            
+        fetchData(1);       
     };
 
     const fetchData = (page) => {
@@ -94,8 +108,10 @@ const Weeklyreport = () => {
                      + "&workDivs=" + workDivs
                      + "&startDt=" + startDt.replace(/-/gi, "")
                      + "&endDt=" + endDt.replace(/-/gi, "")
-                     + "&page=" + page;
-
+                     + "&page=" + page
+                     + "&authCd=" + searchParams.get('authCd')
+                     + "&email=" + searchParams.get('email');
+        // 112.220.26.195
         fetch("http://112.220.26.195:8080/ims/report/weekly/list" + queryStr).then((res) => res.json()).then((data) => {
             console.log(data);
             setRowData(data.content);
