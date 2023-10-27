@@ -9,6 +9,7 @@ import ApprReq from './pages/ApprReq';
 import Emp from './pages/Emp';
 import QnA from './pages/QnA';
 import Weeklyreport from './pages/Weeklyreport';
+import WeeklyreportDetail from './pages/WeeklyreportDetail';
 
 const App = () => {
     return (
@@ -23,6 +24,7 @@ const App = () => {
                 </Route>
                 <Route path="/weeklyreport" element={<WeeklyreportLayout />} >
                     <Route index element={<Weeklyreport />} />
+                    <Route path="detail" element={<WeeklyreportDetail />}/>
                 </Route>        
             </Route>
           

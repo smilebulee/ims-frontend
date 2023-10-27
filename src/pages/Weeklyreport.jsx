@@ -10,7 +10,8 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import Pagination from 'react-bootstrap/Pagination';
 import Modal from 'react-bootstrap/Modal';
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from 'axios';
 
 
 const Weeklyreport = () => {    
@@ -72,6 +73,8 @@ const Weeklyreport = () => {
 
     const [searchParams] = useSearchParams();
     const queryList = [...searchParams];
+
+    const navigate = useNavigate();
     
     const getList = (e) => {       
         console.log(e);
@@ -194,6 +197,45 @@ const Weeklyreport = () => {
         });  
     };
 
+    const addReportPage = e => {
+        navigate("/weeklyreport/detail", {
+            state: {
+                title: "주간보고 작성"
+            }
+        })
+    }
+
+    const modifyReportPage= e => {
+        navigate("/weeklyreport/detail", {
+            state: {
+                title: "주간보고 수정",
+                data: e.data,
+            }
+        });
+    }
+
+    const [selectedRow, setSelectedRow] = useState("");
+    const deleteRow = () => {
+        if(selectedRow.length == 0) {
+            alert("삭제할 항목을 선택한 후 진행해주세요.");
+            return true;
+        }
+        else {
+            if(window.confirm("삭제하시겠습니까?")) {
+                const seq = selectedRow.map(row => row.seq);
+    
+                axios.post("http://localhost:8080/ims/report/weekly/delete", {
+                    seq: seq
+                }).then(data => {
+                    alert("삭제 되었습니다.");
+                    fetchData(1);
+                }).catch(error => {
+                    console.log(error);
+                });
+            }
+        }
+    }
+
     return (
         <>
         <Stack gap={2} style={{width:"100%"}}>
@@ -215,7 +257,9 @@ const Weeklyreport = () => {
                             </Form.Select>
                         </Col>
                         <Col xs={5}>
+                            <Button variant="btn btn-outline-danger" style={{float:"right", margin:"0px 5px 0px 5px"}} onClick={deleteRow}>삭  제</Button>
                             <Button variant="btn btn-outline-primary" style={{float:"right", margin:"0px 5px 0px 5px"}} onClick={showModal}>업로드</Button>
+                            <Button variant='btn btn-outline-primary' style={{float:"right", margin:"0px 5px 0px 5px"}} onClick={addReportPage}>작  성</Button>
                             <Button variant="primary" style={{float:"right", margin:"0px 5px 0px 5px"}} type="submit">조  회</Button>                    
                         </Col>
                     </Form.Group>
@@ -260,6 +304,10 @@ const Weeklyreport = () => {
                                 resizable:true}} 
                             //  onGridReady={onGridReady}
                              onRowDataUpdated={autoSizeAll}
+                             onRowDoubleClicked={modifyReportPage}
+                             rowSelection={'multiple'}
+                             rowMultiSelectWithClick={true}
+                             onSelectionChanged={e => setSelectedRow(e.api.getSelectedRows())}
                             //  serverSideDatasource={getList}
                             //  pagination={true}
                             //  paginationPageSize={2}
