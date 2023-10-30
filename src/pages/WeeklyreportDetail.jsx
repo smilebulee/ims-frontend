@@ -84,42 +84,44 @@ const WeeklyreportDetail= () => {
   const saveReport = e => {
     e.preventDefault();
 
-    const data = {
-      reportDt: reportDt,
-      mailId: mailId,
-      upDeptNm: upDeptNm,
-      deptNm: deptNm,
-      empNm: empNm,
-      seq: seq,
-      workUnit: workUnit,
-      prgsStus: prgsStus,
-      workDivs: workDivs,
-      titlNm: titlNm,
-      workPart: workPart,
-      workInfo: workInfo,
-      schedStartDt: schedStartDt.replace(/-/g, ""),
-      schedEndDt: schedEndDt.replace(/-/g, ""),
-      adjustDt: adjustDt.replace(/-/g, ""),
-      adjustRsn: adjustRsn,
-      fnshDt: fnshDt.replace(/-/g, ""),
-      prgsHist: prgsHist,
-      remarks: remarks
+    if(window.confirm("등록하시겠습니까?")) {
+      const data = {
+        reportDt: reportDt,
+        mailId: mailId,
+        upDeptNm: upDeptNm,
+        deptNm: deptNm,
+        empNm: empNm,
+        seq: seq,
+        workUnit: workUnit,
+        prgsStus: prgsStus,
+        workDivs: workDivs,
+        titlNm: titlNm,
+        workPart: workPart,
+        workInfo: workInfo,
+        schedStartDt: schedStartDt.replace(/-/g, ""),
+        schedEndDt: schedEndDt.replace(/-/g, ""),
+        adjustDt: adjustDt.replace(/-/g, ""),
+        adjustRsn: adjustRsn,
+        fnshDt: fnshDt.replace(/-/g, ""),
+        prgsHist: prgsHist,
+        remarks: remarks
+      }
+  
+      // axios.post("http://localhost:8080/ims/report/weekly/add", null, {
+      //   params: {
+      //     upDeptNm: upDeptNm
+      //   }
+      axios.post("http://112.220.26.195:8080/ims/report/weekly/save", {
+        ...data
+      }).then(function(response) {
+        alert(response.data);
+        navigate("/weeklyreport");
+      }).catch(function(error) {
+        console.log(error);
+      });
     }
-
-    // axios.post("http://localhost:8080/ims/report/weekly/add", null, {
-    //   params: {
-    //     upDeptNm: upDeptNm
-    //   }
-    axios.post("http://localhost:8080/ims/report/weekly/save", {
-      ...data
-    }).then(function(response) {
-      alert(response.data);
-      navigate("/weeklyreport");
-    }).catch(function(error) {
-      console.log(error);
-    });
   }
-
+  
   return (
       <>
         <Stack gap={4}>

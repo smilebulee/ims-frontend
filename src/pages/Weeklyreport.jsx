@@ -81,8 +81,8 @@ const Weeklyreport = () => {
         e.preventDefault();
 
         if(searchParams.get('authCd') == null || (searchParams.get('authCd') != 'ADMIN' && searchParams.get('authCd') != 'USER')){
-            alert('권한정보가 없습니다.');
-            return false;
+        alert('권한정보가 없습니다.');
+        return false;
         }
 
         if(searchParams.get('authCd') == 'USER' && searchParams.get('email') == null){
@@ -224,7 +224,7 @@ const Weeklyreport = () => {
             if(window.confirm("삭제하시겠습니까?")) {
                 const seq = selectedRow.map(row => row.seq);
     
-                axios.post("http://localhost:8080/ims/report/weekly/delete", {
+                axios.post("http://112.220.26.195:8080/ims/report/weekly/delete", {
                     seq: seq
                 }).then(data => {
                     alert("삭제 되었습니다.");
