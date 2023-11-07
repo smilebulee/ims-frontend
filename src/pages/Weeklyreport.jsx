@@ -213,7 +213,7 @@ const Weeklyreport = () => {
                     + "&authCd=" + searchParams.get('authCd')
                     + "&email=" + searchParams.get('email');
 
-        axios.get("http://localhost:8080/ims/report/weekly/excelList" + queryStr).then(list => {
+        axios.get("http://112.220.26.195:8080/ims/report/weekly/excelList" + queryStr).then(list => {
             console.log(list.data);
             const gridRows = gridRef.current.api.getRenderedNodes();
 
@@ -381,7 +381,7 @@ const Weeklyreport = () => {
         <Modal show={show} onHide={closeModal} >
             <Modal.Header>
                 <Modal.Title>엑셀 업로드</Modal.Title>
-                <a  href="http://localhost:8080/ims/report/weekly/download?idx=1">엑셀 가이드 파일</a>
+                <a  href="http://112.220.26.195:8080/ims/report/weekly/download?idx=1">엑셀 가이드 파일</a>
             </Modal.Header>
             <Modal.Body>
                 <Form.Control type="file" name="uploadFiles" multiple="true" accept=".xlsx" onChange={excelUpload} />
