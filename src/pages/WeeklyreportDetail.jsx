@@ -15,6 +15,7 @@ const WeeklyreportDetail= () => {
   const [workDivs, setWorkDivs] = useState();
   const [titlNm, setTitlNm] = useState();
   const [workPart, setWorkPart] = useState();
+  const [workPlan, setWorkPlan] = useState();
   const [workInfo, setWorkInfo] = useState();
   const [schedStartDt, setSchedStartDt] = useState();
   const [schedEndDt, setSchedEndDt] = useState();
@@ -34,7 +35,7 @@ const WeeklyreportDetail= () => {
     console.log(rowInfo);
     const dateFormat = dateStr => dateStr.length == 8 ? dateStr.substr(0, 4) + "-" + dateStr.substr(4, 2) + "-" + dateStr.substr(6, 2) : "";
 
-    if(Object.keys(rowInfo).length != 0) {
+    if(Object.keys(rowInfo).length != 0) { 
       setReportDt(rowInfo.reportDt);
       setMailId(rowInfo.mailId);
       setUpDeptNm(rowInfo.upDeptNm);
@@ -46,6 +47,7 @@ const WeeklyreportDetail= () => {
       setWorkDivs(rowInfo.workDivs);
       setTitlNm(rowInfo.titlNm);
       setWorkPart(rowInfo.workPart);
+      setWorkPlan(rowInfo.workPlan);
       setWorkInfo(rowInfo.workInfo);
       setSchedStartDt(dateFormat(rowInfo.schedStartDt+""));
       setSchedEndDt(dateFormat(rowInfo.schedEndDt+""));
@@ -58,8 +60,8 @@ const WeeklyreportDetail= () => {
     }
     else {
       const today = new Date();
-      setReportDt(today.getFullYear() + String(today.getMonth()+1).padStart(2, "0") + today.getDate());
-      setMailId("test@test.com");
+      setReportDt(today.getFullYear() + String(today.getMonth()+1).padStart(2, "0") + String(today.getDate()).padStart(2, "0"));
+      setMailId(location.state.email != null ? location.state.email : "");
       setUpDeptNm("");
       setDeptNm("");
       setEmpNm("");
@@ -69,6 +71,7 @@ const WeeklyreportDetail= () => {
       setWorkDivs("SI");
       setTitlNm("");
       setWorkPart("");
+      setWorkPlan("");
       setWorkInfo("");
       setSchedStartDt("");
       setSchedEndDt("");
@@ -84,7 +87,7 @@ const WeeklyreportDetail= () => {
   const saveReport = e => {
     e.preventDefault();
 
-    if(window.confirm("등록하시겠습니까?")) {
+    if(window.confirm(isModify ? "수정하시겠습니까?" : "작성하시겠습니까?")) {
       const data = {
         reportDt: reportDt,
         mailId: mailId,
@@ -97,6 +100,7 @@ const WeeklyreportDetail= () => {
         workDivs: workDivs,
         titlNm: titlNm,
         workPart: workPart,
+        workPlan: workPlan,
         workInfo: workInfo,
         schedStartDt: schedStartDt.replace(/-/g, ""),
         schedEndDt: schedEndDt.replace(/-/g, ""),
@@ -132,17 +136,17 @@ const WeeklyreportDetail= () => {
               <Form.Group as={Row} className="mb-2" controlId="firstRow">
                 <Form.Label column xs={1}>사업부</Form.Label>
                 <Col xs={2}>
-                  <Form.Control type="text" placeholder="" name="upDeptNm" value={upDeptNm || ""} onChange={e => setUpDeptNm(e.target.value)} />
+                  <Form.Control type="text" placeholder="" name="upDeptNm" value={upDeptNm || ""} disabled={isModify} onChange={e => setUpDeptNm(e.target.value)} />
                 </Col>
 
                 <Form.Label column xs={1}>팀</Form.Label>
                 <Col xs={2}>
-                  <Form.Control type="text" placeholder="" name="deptNm" value={deptNm || ""} onChange={e => setDeptNm(e.target.value)} />
+                  <Form.Control type="text" placeholder="" name="deptNm" value={deptNm || ""} disabled={isModify} onChange={e => setDeptNm(e.target.value)} />
                 </Col>
 
                 <Form.Label column xs={1}>담당자</Form.Label>
                 <Col xs={2}>
-                  <Form.Control type="text" placeholder="" name="empNm" value={empNm || ""} onChange={e => setEmpNm(e.target.value)} />
+                  <Form.Control type="text" placeholder="" name="empNm" value={empNm || ""} disabled={isModify} onChange={e => setEmpNm(e.target.value)} />
                 </Col>
               </Form.Group>
               
@@ -166,7 +170,7 @@ const WeeklyreportDetail= () => {
                   </Form.Select>
                 </Col>
 
-                <Form.Label column xs={1}>구분</Form.Label>
+                <Form.Label column xs={1}>구  분</Form.Label>
                 <Col xs={2}>
                   <Form.Select placeholder="" name="workDivs" value={workDivs} onChange={e => setWorkDivs(e.target.value)} >
                     <option value="SI">SI</option>
@@ -178,18 +182,25 @@ const WeeklyreportDetail= () => {
 
               <Form.Group as={Row} className="mb-2 align-items-center" controlId="thirdRow">
                 <Form.Label column xs={1}>프로젝트/과제명</Form.Label>
-                <Col xs={5}>
+                <Col xs={8}>
                   <Form.Control type="text" placeholder="" name="titlNm" value={titlNm || ""} onChange={e => setTitlNm(e.target.value)} />
                 </Col>
 
-                <Form.Label column xs={1}>파트</Form.Label>
+                {/* <Form.Label column xs={1}>파트</Form.Label>
                 <Col xs={2}>
                   <Form.Control type="text" placeholder="" name="workPart" value={workPart || ""} onChange={e => setWorkPart(e.target.value)} />
+                </Col> */}
+              </Form.Group>
+
+              <Form.Group as={Row} className="mb-2" controlId="fourthRow">
+                <Form.Label column xs={1}>계  획</Form.Label>
+                <Col xs={8}>
+                  <Form.Control type="text" placeholder="" name="workPlan" value={workPlan || ""} onChange={e => setWorkPlan(e.target.value)} />
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className="mb-2" controlId="fourthRow">
-                <Form.Label column xs={1}>진행업무</Form.Label>
+                <Form.Label column xs={1}>실  적</Form.Label>
                 <Col xs={8}>
                   <Form.Control type="text" placeholder="" name="workInfo" value={workInfo || ""} onChange={e => setWorkInfo(e.target.value)} />
                 </Col>
@@ -238,8 +249,8 @@ const WeeklyreportDetail= () => {
                 </Col>
 
                 <Col>
-                  <Link className="btn btn-danger" style={{float:"right", margin:"0px 5px 0px 5px"}} to="/weeklyreport">취 소</Link>
-                  <Button variant="primary" style={{float:"right", margin:"0px 5px 0px 5px"}} type="submit">등 록</Button> 
+                  <Link className="btn btn-danger" style={{float:"right", margin:"0px 5px 0px 5px"}} to="/weeklyreport">목록으로</Link>
+                  <Button variant="primary" style={{float:"right", margin:"0px 5px 0px 5px"}} type="submit">{!isModify ? "작  성" : "수  정"}</Button> 
                 </Col>
               </Form.Group>
             </Form>     

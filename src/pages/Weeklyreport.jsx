@@ -12,6 +12,7 @@ import Pagination from 'react-bootstrap/Pagination';
 import Modal from 'react-bootstrap/Modal';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from 'axios';
+import * as XLSX from 'xlsx';
 
 
 const Weeklyreport = () => {    
@@ -41,8 +42,9 @@ const Weeklyreport = () => {
         {headerName:"진행상태", field:"prgsStus", width:100},
         {headerName:"구분", field:"workDivs", width:70},
         {headerName:"프로젝트/과제명", field:"titlNm", width:200},
-        {headerName:"파트", field:"workPart", width:70},
-        {headerName:"진행업무", field:"workInfo", width:300},
+        //{headerName:"파트", field:"workPart", width:70},
+        {headerName:"계획", field:"workPlan", width:200},
+        {headerName:"실적", field:"workInfo", width:200},
         {headerName:"계획시작일자", field:"schedStartDt", width:120, cellRenderer: (data) => { return dateFormatter(data.value);}},
         {headerName:"계획종료일자", field:"schedEndDt", width:120, cellRenderer: (data) => { return dateFormatter(data.value);}},
         {headerName:"조정일자", field:"adjustDt", width:120, cellRenderer: (data) => { return dateFormatter(data.value);}},
@@ -116,7 +118,7 @@ const Weeklyreport = () => {
                      + "&email=" + searchParams.get('email');
         // 112.220.26.195
         fetch("http://112.220.26.195:8080/ims/report/weekly/list" + queryStr).then((res) => res.json()).then((data) => {
-            console.log(data);
+                    console.log(data);
             setRowData(data.content);
 
             let active = data.pageable.pageNumber + 1;
@@ -181,9 +183,11 @@ const Weeklyreport = () => {
         for(let i = 0;i < fileList.length;i++){
             formData.append("files", fileList[i]);
         }
+
+        formData.append("mailId", searchParams.get('email') != null ? searchParams.get('email') : "");
         
         fetch("http://112.220.26.195:8080/ims/report/weekly/upload", {
-            method: 'POST',
+                    method: 'POST',
             body: formData,
 
         }).then((res) => res.json()).then((data) => {
@@ -197,10 +201,62 @@ const Weeklyreport = () => {
         });  
     };
 
+    const gridRef = useRef();
+    const excelDownload = () => {
+        let queryStr = "?upDeptNm=" + upDeptNm
+                    + "&deptNm=" + deptNm
+                    + "&empNm=" + empNm
+                    + "&prgsStus=" + prgsStus
+                    + "&workDivs=" + workDivs
+                    + "&startDt=" + startDt.replace(/-/gi, "")
+                    + "&endDt=" + endDt.replace(/-/gi, "")
+                    + "&authCd=" + searchParams.get('authCd')
+                    + "&email=" + searchParams.get('email');
+
+        axios.get("http://localhost:8080/ims/report/weekly/excelList" + queryStr).then(list => {
+            console.log(list.data);
+            const gridRows = gridRef.current.api.getRenderedNodes();
+
+            if(list.data.length == 0) {
+                alert("해당 조건으로는 검색되는 데이터가 없어 다운로드 받을 수 없습니다.");
+                return false;
+            }
+
+            if(Object.keys(gridRows).length == 0) {
+                alert("조회 후 다운로드 받을 수 있습니다.");
+                return false;
+            }
+
+            const title = [
+                "보고일", "담당자", "사업부", "팀",
+                "업무단위", "진행상태", "구분", "프로젝트/과제명",
+                "계획", "실적", "계획시작일자", "계획종료일자",
+                "조정일자", "조정사유", "완료일자", "진행내역", "비고"
+            ];
+
+            const ws = XLSX.utils.json_to_sheet(list.data.map(row => {
+                const {mailId, seq, workPart, uploadYn, ...filterRow} = row;
+                return filterRow;
+            }));
+            const wb = XLSX.utils.book_new();
+
+            title.forEach((val, idx) => {
+                const addr = XLSX.utils.encode_cell({c:idx, r:0});
+                ws[addr].v = val;
+            });
+
+            XLSX.utils.book_append_sheet(wb, ws, "Total Report");
+            XLSX.writeFile(wb, "주간보고관리.xlsx");
+        }).catch(error => {
+            console.log(error);
+        });
+    }
+
     const addReportPage = e => {
         navigate("/weeklyreport/detail", {
             state: {
-                title: "주간보고 작성"
+                title: "주간보고 작성",
+                email: searchParams.get('email')
             }
         })
     }
@@ -222,10 +278,8 @@ const Weeklyreport = () => {
         }
         else {
             if(window.confirm("삭제하시겠습니까?")) {
-                const seq = selectedRow.map(row => row.seq);
-    
                 axios.post("http://112.220.26.195:8080/ims/report/weekly/delete", {
-                    seq: seq
+                    row: selectedRow
                 }).then(data => {
                     alert("삭제 되었습니다.");
                     fetchData(1);
@@ -256,11 +310,9 @@ const Weeklyreport = () => {
                                 <option value="조정">조정</option>
                             </Form.Select>
                         </Col>
-                        <Col xs={5}>
-                            <Button variant="btn btn-outline-danger" style={{float:"right", margin:"0px 5px 0px 5px"}} onClick={deleteRow}>삭  제</Button>
-                            <Button variant="btn btn-outline-primary" style={{float:"right", margin:"0px 5px 0px 5px"}} onClick={showModal}>업로드</Button>
-                            <Button variant='btn btn-outline-primary' style={{float:"right", margin:"0px 5px 0px 5px"}} onClick={addReportPage}>작  성</Button>
-                            <Button variant="primary" style={{float:"right", margin:"0px 5px 0px 5px"}} type="submit">조  회</Button>                    
+                        <Col xs={6}>
+                            <Button variant="btn btn-outline-success" style={{float:"right", margin:"0px 5px 0px 5px", width:"100px"}} onClick={excelDownload}>다운로드</Button>
+                            <Button variant='btn btn-outline-success' style={{float:"right", margin:"0px 5px 0px 5px", width:"100px"}} onClick={showModal}>업로드</Button>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-2" controlId="secondRow">
@@ -277,6 +329,11 @@ const Weeklyreport = () => {
                                 <option value="SM">SM</option>
                                 <option value="스쿼드">스쿼드</option>
                             </Form.Select>
+                        </Col>
+                        <Col xs={6}>
+                            <Button variant="btn btn-outline-danger" style={{float:"right", margin:"0px 5px 0px 5px"}} onClick={deleteRow}>삭  제</Button>
+                            <Button variant='btn btn-outline-primary' style={{float:"right", margin:"0px 5px 0px 5px"}} onClick={addReportPage}>작  성</Button>
+                            <Button variant="primary" style={{float:"right", margin:"0px 5px 0px 5px"}} type="submit">조  회</Button>                    
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="" controlId="thirdRow">
@@ -298,7 +355,7 @@ const Weeklyreport = () => {
             </div>
             <div className="ag-theme-alpine" style={{width: '100%'}}>
                 {/* <DataGrid autoHeight rows={rows} columns={columns} pageSizeOptions={[5]} paginationMode="server" /> */}
-                <AgGridReact columnDefs={columnDefs} rowData={rowData} 
+                <AgGridReact columnDefs={columnDefs} rowData={rowData} ref={gridRef}
                              defaultColDef={{
                                 sortable: true,
                                 resizable:true}} 
@@ -324,6 +381,7 @@ const Weeklyreport = () => {
         <Modal show={show} onHide={closeModal} >
             <Modal.Header>
                 <Modal.Title>엑셀 업로드</Modal.Title>
+                <a  href="http://localhost:8080/ims/report/weekly/download?idx=1">엑셀 가이드 파일</a>
             </Modal.Header>
             <Modal.Body>
                 <Form.Control type="file" name="uploadFiles" multiple="true" accept=".xlsx" onChange={excelUpload} />
