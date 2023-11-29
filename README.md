@@ -1,3 +1,7 @@
+# 프록시 세팅
+## setupProxy.js
+/ims 로 시작하는 path는 사내 서버로 연결 되게 세팅되어 있음
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
