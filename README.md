@@ -1,5 +1,7 @@
 # 프록시 세팅
+
 ## setupProxy.js
+
 /ims 로 시작하는 path는 사내 서버로 연결 되게 세팅되어 있음
 
 # Getting Started with Create React App
