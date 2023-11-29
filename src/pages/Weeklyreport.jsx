@@ -1,5 +1,6 @@
-import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
-import { useRef, useState } from "react";
+//import { DataGrid, GridRowsProp, GridColDef } from '@mui/x-data-grid';
+//import { useRef, useState } from "react";
+import { useState } from 'react';
 import Stack from 'react-bootstrap/Stack';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -71,18 +72,18 @@ const Weeklyreport = () => {
     const closeModal = () => setShow(false);
 
     const [searchParams] = useSearchParams();
-    const queryList = [...searchParams];
+    //const queryList = [...searchParams];
     
     const getList = (e) => {       
         console.log(e);
         e.preventDefault();
 
-        if(searchParams.get('authCd') == null || (searchParams.get('authCd') != 'ADMIN' && searchParams.get('authCd') != 'USER')){
+        if(searchParams.get('authCd') === null || (searchParams.get('authCd') !== 'ADMIN' && searchParams.get('authCd') !== 'USER')){
             alert('권한정보가 없습니다.');
             return false;
         }
 
-        if(searchParams.get('authCd') == 'USER' && searchParams.get('email') == null){
+        if(searchParams.get('authCd') === 'USER' && searchParams.get('email') === null){
             alert('계정정보가 없습니다.');
             return false;
         }
@@ -112,7 +113,7 @@ const Weeklyreport = () => {
                      + "&authCd=" + searchParams.get('authCd')
                      + "&email=" + searchParams.get('email');
         // 112.220.26.195
-        fetch("http://112.220.26.195:8080/ims/report/weekly/list" + queryStr).then((res) => res.json()).then((data) => {
+        fetch("/ims/report/weekly/list" + queryStr).then((res) => res.json()).then((data) => {
             console.log(data);
             setRowData(data.content);
 
@@ -179,7 +180,7 @@ const Weeklyreport = () => {
             formData.append("files", fileList[i]);
         }
         
-        fetch("http://112.220.26.195:8080/ims/report/weekly/upload", {
+        fetch("/ims/report/weekly/upload", {
             method: 'POST',
             body: formData,
 
