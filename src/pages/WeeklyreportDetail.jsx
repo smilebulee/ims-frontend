@@ -115,7 +115,7 @@ const WeeklyreportDetail= () => {
       //   params: {
       //     upDeptNm: upDeptNm
       //   }
-      axios.post("http://112.220.26.195:8080/ims/report/weekly/save", {
+      axios.post("/ims/report/weekly/save", {
         ...data
       }).then(function(response) {
         alert(response.data);
