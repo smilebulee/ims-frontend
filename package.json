@@ -11,7 +11,7 @@
     "@testing-library/user-event": "^13.5.0",
     "ag-grid-community": "^29.2.0",
     "ag-grid-react": "^29.2.0",
-    "axios": "^1.5.1",
+    "axios": "^1.6.2",
     "bootstrap": "^5.2.3",
     "cdbreact": "^1.5.9",
     "http-proxy-middleware": "^2.0.6",
@@ -23,7 +23,6 @@
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5"
   },
-  
   "scripts": {
     "start": "export PORT=3001 && react-scripts start",
     "build": "react-scripts build",
