@@ -1,9 +1,23 @@
+# 개발 / 운영 env 분리
+
+## .env.development
+
+    개발 환경 변수 설정
+    __npm start__ 시 적용됨
+    로컬 개발 환경에서 리액트 실행시 npm start 명령으로 실행
+
+## .env.production
+
+    운영 환경 변수 설정
+    __npm run build__ 후 __npx serve -s build__ 시 적용됨
+    사내 서버 /var/lib/jenkins/workspace/IMS-FRONTEND/frontend.sh 참조
+
 # 프록시 세팅
 
 ## setupProxy.js
 
-/ims 로 시작하는 path는 사내 서버로 연결 되게 세팅되어 있음\
-fetch나 axios로 api 호출시 호스트 부분 제외하고 path 만 /ims 로 시작하게 지정
+    /ims 로 시작하는 path는 사내 서버로 연결 되게 세팅되어 있음\
+    fetch나 axios로 api 호출시 호스트 부분 제외하고 path 만 /ims 로 시작하게 지정
 
 # Getting Started with Create React App
 
