@@ -3,13 +3,13 @@
 ## .env.development
 
     개발 환경 변수 설정
-    __npm start__ 시 적용됨
+    npm start 시 적용됨
     로컬 개발 환경에서 리액트 실행시 npm start 명령으로 실행
 
 ## .env.production
 
     운영 환경 변수 설정
-    __npm run build__ 후 __npx serve -s build__ 시 적용됨
+    npm run build 후 npx serve -s build 시 적용됨
     사내 서버 /var/lib/jenkins/workspace/IMS-FRONTEND/frontend.sh 참조
 
 # 프록시 세팅
