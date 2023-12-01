@@ -115,7 +115,7 @@ const WeeklyreportDetail= () => {
       //   params: {
       //     upDeptNm: upDeptNm
       //   }
-      axios.post("/ims/report/weekly/save", {
+      axios.post(process.env.REACT_APP_API_HOST + "/ims/report/weekly/save", {
         ...data
       }).then(function(response) {
         alert(response.data);

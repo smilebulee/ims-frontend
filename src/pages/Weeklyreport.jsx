@@ -117,7 +117,7 @@ const Weeklyreport = () => {
                      + "&authCd=" + searchParams.get('authCd')
                      + "&email=" + searchParams.get('email');
         // 112.220.26.195
-        fetch("/ims/report/weekly/list" + queryStr).then((res) => res.json()).then((data) => {
+        fetch(process.env.REACT_APP_API_HOST + "/ims/report/weekly/list" + queryStr).then((res) => res.json()).then((data) => {
             console.log(data);
             setRowData(data.content);
 
@@ -186,7 +186,7 @@ const Weeklyreport = () => {
 
         formData.append("mailId", searchParams.get('email') != null ? searchParams.get('email') : "");
 
-        fetch("/ims/report/weekly/upload", {
+        fetch(process.env.REACT_APP_API_HOST + "/ims/report/weekly/upload", {
             method: 'POST',
             body: formData,
 
@@ -213,7 +213,7 @@ const Weeklyreport = () => {
                     + "&authCd=" + searchParams.get('authCd')
                     + "&email=" + searchParams.get('email');
 
-        axios.get("/ims/report/weekly/excelList" + queryStr).then(list => {
+        axios.get(process.env.REACT_APP_API_HOST + "/ims/report/weekly/excelList" + queryStr).then(list => {
             console.log(list.data);
             const gridRows = gridRef.current.api.getRenderedNodes();
 
