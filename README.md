@@ -1,3 +1,10 @@
+# 프록시 세팅
+
+## setupProxy.js
+
+/ims 로 시작하는 path는 사내 서버로 연결 되게 세팅되어 있음\
+fetch나 axios로 api 호출시 호스트 부분 제외하고 path 만 /ims 로 시작하게 지정
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
