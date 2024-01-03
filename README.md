@@ -10,7 +10,14 @@
 
     운영 환경 변수 설정
     npm run build 후 npx serve -s build 시 적용됨
-    사내 서버 /var/lib/jenkins/workspace/IMS-FRONTEND/frontend.sh 참조
+    
+## jenkins post build script 
+
+    cd /var/lib/jenkins/workspace/IMS-FRONTEND
+    killall node
+    chmod +x /var/lib/jenkins/workspace/IMS-FRONTEND/node_modules/.bin/react-scripts
+    CI=false npm run build
+    JENKINS_NODE_COOKIE=dontKillMe nohup ./run.sh > /dev/null 2>&1 &
 
 # 프록시 세팅
 
