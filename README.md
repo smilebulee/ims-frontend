@@ -19,9 +19,9 @@
     CI=false npm run build
     JENKINS_NODE_COOKIE=dontKillMe nohup ./run.sh > /dev/null 2>&1 &
 
-# 프록시 세팅
+# ~~프록시 세팅~~
 
-## setupProxy.js
+## ~~setupProxy.js~~
 
 # Getting Started with Create React App
 
