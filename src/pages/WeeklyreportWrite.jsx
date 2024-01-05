@@ -95,30 +95,23 @@ const WeeklyreportDetail= () => {
 
   const dateValid = () => {
     if(schedStartDt !== "" && schedEndDt !== "" && schedStartDt > schedEndDt) {
-      window.alert("계획 시작일이 종료일보다 이 후 입니다. 다시 한번 확인 후 입력해주세요.");
+      window.alert("계획 종료일이 시작일보다 이 전 입니다. 다시 한번 확인해주세요.");
       return false;
     }
 
-    if(schedStartDt !== "" && schedEndDt !== "" && adjustDt !== "") {
-      if(schedStartDt > adjustDt) {
-        window.alert("조정일이 계획 시작일보다 이 전 입니다. 다시 한번 확인 후 입력해주세요.");
-        return false;
-      }
-
-      if(adjustDt > schedEndDt) {
-        window.alert("조정일이 계획 종료일보다 이 후 입니다. 다시 한번 확인 후 입력해주세요.");
-        return false;
-      }
+    if(schedStartDt !== "" && schedEndDt !== "" && adjustDt !== "" && schedStartDt > adjustDt) {
+      window.alert("조정일이 계획 시작일보다 이 전 입니다. 다시 한번 확인해주세요.");
+      return false;
     }
 
     if(schedStartDt !== "" && schedEndDt !== "" && fnshDt !== "") {
-      if(fnshDt < schedEndDt) {
-        window.alert("완료일이 계획 종료일보다 이 전 입니다. 다시 한번 확인 후 입력해주세요.");
+      if(fnshDt < schedStartDt) {
+        window.alert("완료일이 계획 시작일보다 이 전 입니다. 다시 한번 확인해주세요.");
         return false;
       }
 
       if(adjustDt !== "" && fnshDt < adjustDt) {
-        window.alert("완료일이 조정일보다 이 전 입니다. 다시 한번 확인 후 입력해주세요.");
+        window.alert("완료일이 조정일보다 이 전 입니다. 다시 한번 확인해주세요.");
         return false;
       }
     }
