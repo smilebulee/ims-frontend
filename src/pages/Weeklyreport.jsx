@@ -252,6 +252,31 @@ const Weeklyreport = () => {
         });
     }
 
+    const downGuideFile = () => {
+        axios.get(process.env.REACT_APP_API_HOST + "/ims/report/weekly/download", {
+            params: {
+                seq: 1,
+                reportDt: "20231201",
+                mailId: "ADMIN"
+            },
+            responseType: "blob"
+        }).then(function (response) {
+            let blob = new Blob([response.data], { type: response.headers['content-type'] });
+            const fileObjectUrl = window.URL.createObjectURL(blob);
+            const filename = decodeURI(response.headers["content-disposition"].split("filename=")[1].replace(/['"]/g, "").slice(0, -1));
+
+            let link = document.createElement('a');
+            link.href = fileObjectUrl;
+            link.target = '_self';
+            link.setAttribute("download", filename);
+            link.click()
+            link.remove();
+            window.URL.revokeObjectURL(fileObjectUrl);
+        }).catch(function (err) {
+            console.log(err);
+        });
+    }
+
     const addReportPage = e => {
         navigate("/weeklyreport/write", {
             state: {
@@ -395,7 +420,7 @@ const Weeklyreport = () => {
         <Modal show={show} onHide={closeModal} >
             <Modal.Header>
                 <Modal.Title>엑셀 업로드</Modal.Title>
-                <a href="/ims/report/weekly/download?seq=1&reportDt=20231201&mailId=ADMIN">엑셀 가이드 파일</a>
+                <button style={{border: 0, backgroundColor: "#fff", textDecoration: "underline", color: "blue"}} onClick={downGuideFile}>엑셀 가이드 파일</button>
             </Modal.Header>
             <Modal.Body>
                 <Form.Control type="file" name="uploadFiles" multiple="true" accept=".xlsx" onChange={excelUpload} />
