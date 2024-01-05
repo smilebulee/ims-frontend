@@ -317,7 +317,7 @@ const Weeklyreport = () => {
         }
         else {
             if(window.confirm("삭제하시겠습니까?")) {
-                axios.post("/ims/report/weekly/delete", {
+                axios.post(process.env.REACT_APP_API_HOST + "/ims/report/weekly/delete", {
                     row: selectedRow
                 }).then(data => {
                     alert("삭제 되었습니다.");
