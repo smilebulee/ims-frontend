@@ -253,7 +253,7 @@ const Weeklyreport = () => {
     }
 
     const addReportPage = e => {
-        navigate("/weeklyreport/detail", {
+        navigate("/weeklyreport/write", {
             state: {
                 title: "주간보고 작성",
                 email: searchParams.get('email')
@@ -261,11 +261,25 @@ const Weeklyreport = () => {
         })
     }
 
-    const modifyReportPage= e => {
+    const reportDetailPage= async e => {
+        let attachFileName = "";
+        await axios.get(process.env.REACT_APP_API_HOST + "/ims/report/weekly/attachFileList", {
+            params: {
+                seq: e.data.seq,
+                reportDt: e.data.reportDt,
+                mailId: e.data.mailId
+            }
+        }).then(function(response) {
+            attachFileName = response.data.originalFileName;
+        }).catch(function(error) {
+            console.log(error);
+        });
+
         navigate("/weeklyreport/detail", {
             state: {
-                title: "주간보고 수정",
+                title: "주간보고 상세",
                 data: e.data,
+                attachFileName: attachFileName,
             }
         });
     }
@@ -361,7 +375,7 @@ const Weeklyreport = () => {
                                 resizable:true}} 
                             //  onGridReady={onGridReady}
                              onRowDataUpdated={autoSizeAll}
-                             onRowDoubleClicked={modifyReportPage}
+                             onRowDoubleClicked={reportDetailPage}
                              rowSelection={'multiple'}
                              rowMultiSelectWithClick={true}
                              onSelectionChanged={e => setSelectedRow(e.api.getSelectedRows())}
@@ -381,7 +395,7 @@ const Weeklyreport = () => {
         <Modal show={show} onHide={closeModal} >
             <Modal.Header>
                 <Modal.Title>엑셀 업로드</Modal.Title>
-                <a  href="/ims/report/weekly/download?idx=1">엑셀 가이드 파일</a>
+                <a href="/ims/report/weekly/download?seq=1&reportDt=20231201&mailId=ADMIN">엑셀 가이드 파일</a>
             </Modal.Header>
             <Modal.Body>
                 <Form.Control type="file" name="uploadFiles" multiple="true" accept=".xlsx" onChange={excelUpload} />
