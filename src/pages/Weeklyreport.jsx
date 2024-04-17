@@ -13,6 +13,7 @@ import Modal from 'react-bootstrap/Modal';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from 'axios';
 import * as XLSX from 'xlsx';
+import '../css/ims.css';
 
 
 const Weeklyreport = () => {    

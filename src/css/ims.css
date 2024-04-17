@@ -1,0 +1,32 @@
+div.ag-theme-alpine div.ag-row {
+    font-size: 0.8rem !important;
+}
+
+.form-control {
+    font-size: 0.8rem !important;
+}
+
+.form-label {
+    font-size: 0.8rem !important;
+}
+
+.form-select {
+    font-size: 0.8rem !important;
+}
+
+.btn {
+    --bs-btn-font-size: 0.8rem;
+}
+
+.page-link {
+    font-size: 0.8rem;
+}
+
+.react-datepicker__view-calendar-icon input {
+    padding: 6px 30px 5px 10px !important;
+    text-align: left;
+}
+
+.react-datepicker__input-container {
+    direction: rtl;
+}

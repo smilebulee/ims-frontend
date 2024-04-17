@@ -25,7 +25,7 @@ const WeeklyreportLayout = () => {
                     </CDBSidebarContent>
                 </CDBSidebar>
             </div>
-            <div style={{float: "left", padding: "40px 40px 40px 40px", flexGrow: "1"}}>
+            <div style={{float: "left", padding: "40px 40px 40px 40px", flexGrow: "1",height: '90vh'}}>
                 <Outlet />
             </div>
         </div>
