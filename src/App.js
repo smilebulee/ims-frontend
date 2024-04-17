@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 
 import Home from './pages/Home';
+import Login from './pages/Login';
 import Layout from './layout/Layout';
 import AbsencesLayout from './layout/AbsencesLayout';
 import WeeklyreportLayout from './layout/WeeklyreportLayout';
@@ -27,9 +28,9 @@ const App = () => {
                     <Route index element={<Weeklyreport />} />
                     <Route path="write" element={<WeeklyreportWrite />}/>
                     <Route path="detail" element={<WeeklyreportDetail />}/>
-                </Route>        
+                </Route>       
             </Route>
-          
+            <Route path="/login" element={<Login />} /> 
         </Routes>
     );
 };
