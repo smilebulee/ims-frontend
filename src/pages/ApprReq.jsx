@@ -78,9 +78,11 @@ const ApprReq = () => {
         <Stack gap={2} style={{width:"100%"}}>
             <div className="bg-light border rounded p-3">
                 <Form onSubmit={getList}>
-                    <Form.Group as={Row} className="mb-2" controlId="firstRow">
-                        <Form.Label column xs={1}>기안월</Form.Label>
-                        <Col xs={2}>                            
+                    <Row className="mb-2">
+                        <Col xs={1}>
+                            <Form.Label>기안월</Form.Label>
+                        </Col>
+                        <Col xs={2}>
                             <DatePicker selected={draftMonth}                                
                                 showMonthYearPicker
                                 dateFormat="yyyy년 MM월"
@@ -95,7 +97,9 @@ const ApprReq = () => {
                                 style={{width:"100px"}}
                                 />
                         </Col>
-                        <Form.Label column xs={1}>부서</Form.Label>
+                        <Col xs={1}>
+                            <Form.Label>부서</Form.Label>
+                        </Col>
                         <Col xs={2}>                            
                             <Form.Select placeholder="" name="prgsStus">                                
                                 {
@@ -111,13 +115,18 @@ const ApprReq = () => {
                             <Button variant="btn btn-outline-success" style={{float:"right", margin:"0px 5px 0px 5px", width:"110px"}}>연장근무품의</Button>
                             <Button variant='btn btn-outline-success' style={{float:"right", margin:"0px 5px 0px 5px", width:"100px"}}>결재승인</Button>
                         </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-2" controlId="secondRow">
-                        <Form.Label column xs={1}>기안자</Form.Label>
+                    </Row>
+                    
+                    <Row className="mb-2">
+                        <Col xs={1}>
+                            <Form.Label>기안자</Form.Label>
+                        </Col>
                         <Col xs={2}>
                             <Form.Control type="text" placeholder="" name="upDeptNm"/>
                         </Col>
-                        <Form.Label column xs={1}>결재상태</Form.Label>
+                        <Col xs={1}>
+                            <Form.Label>결재상태</Form.Label>
+                        </Col>
                         <Col xs={2}>                            
                             <Form.Select placeholder="" name="prgsStus">
                                 {
@@ -127,7 +136,7 @@ const ApprReq = () => {
                                 }
                             </Form.Select>
                         </Col>
-                    </Form.Group>
+                    </Row>
                 </Form>
             </div>
             <div className="ag-theme-alpine" style={{width: '100%'}}>                
