@@ -91,7 +91,7 @@ const ApprReq = () => {
                                 }
                                 showIcon
                                 toggleCalendarOnIconClick
-                                icon="fa fa-calendar"
+                                icon="far fa-calendar-alt"
                                 style={{width:"100px"}}
                                 />
                         </Col>
