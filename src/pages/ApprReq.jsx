@@ -44,12 +44,13 @@ const ApprReq = () => {
     const showModal = () => setShow(true);
     const closeModal = () => setShow(false);
 
-    const [options, setOptions] = useState([{cd:"", cdNm:"전체"},{cd:"1", cdNm:"진행중"},{cd:"2", cdNm:"완료"}]);
+    const [apvlOptions, setApvlOptions] = useState([]);
+    const [deptOptions, setDeptOptions] = useState([]);
 
     const getList = (e) => {        
         e.preventDefault();
 
-        setOptions([{cd:"", cdNm:"전체"},{cd:"1", cdNm:"진행중"},{cd:"2", cdNm:"완료"},{cd:"3", cdNm:"test"}]);
+        
 
         
     };
@@ -61,7 +62,16 @@ const ApprReq = () => {
 
     // onLoad
     useEffect(() => {
-        //fetchCmmCd();
+        fetchCmmCd("APVL_STTS_CD,DEPT", (data) => {            
+            let DEPT = data.DEPT;
+            let APVL_STTS_CD = data.APVL_STTS_CD;
+
+            APVL_STTS_CD.splice(0, 0, {cd : "", cdNm : "전체"});
+            DEPT.splice(0, 0, {deptCd : "", deptName : "전체"});
+
+            setDeptOptions(DEPT);
+            setApvlOptions(APVL_STTS_CD);
+        });        
     }, []);
 
     return (
@@ -81,15 +91,18 @@ const ApprReq = () => {
                                 }
                                 showIcon
                                 toggleCalendarOnIconClick
+                                icon="fa fa-calendar"
+                                style={{width:"100px"}}
                                 />
                         </Col>
                         <Form.Label column xs={1}>부서</Form.Label>
                         <Col xs={2}>                            
                             <Form.Select placeholder="" name="prgsStus">                                
-                                <option value="">전체</option>
-                                <option value="진행중">진행중</option>
-                                <option value="완료">완료</option>
-                                <option value="조정">조정</option>
+                                {
+                                    deptOptions.map((option, index) => {
+                                        return (<option value={option.deptCd}>{option.deptName}</option>)
+                                    })
+                                }
                             </Form.Select>
                         </Col>
                         <Col xs={6}>
@@ -108,7 +121,7 @@ const ApprReq = () => {
                         <Col xs={2}>                            
                             <Form.Select placeholder="" name="prgsStus">
                                 {
-                                    options.map((option, index) => {
+                                    apvlOptions.map((option, index) => {
                                         return (<option value={option.cd}>{option.cdNm}</option>)
                                     })
                                 }
