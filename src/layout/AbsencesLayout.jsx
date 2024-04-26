@@ -39,6 +39,9 @@ const AbsencesLayout = () => {
                                 <NavLink exact="true" to="/absences/emp" className={({ isActive }) => (isActive ? "activeClicked" : "")} >
                                     <CDBSidebarMenuItem icon="user">직원관리</CDBSidebarMenuItem>
                                 </NavLink>
+                                <NavLink exact="true" to="/absences/dept" className={({ isActive }) => (isActive ? "activeClicked" : "")} >
+                                    <CDBSidebarMenuItem icon="building">부서관리</CDBSidebarMenuItem>
+                                </NavLink>
                                 <NavLink exact="true" to="/absences/qna" className={({ isActive }) => (isActive ? "activeClicked" : "")} >
                                     <CDBSidebarMenuItem icon="question">Q&A</CDBSidebarMenuItem>
                                 </NavLink>
