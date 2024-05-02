@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+const {fetch : orgFetch} = window;
+
+
 const isValidToken = () => {
   const accessToken = localStorage.getItem('accessToken');
   const tokenExpiresIn = localStorage.getItem('tokenExpiresIn');
@@ -12,7 +15,7 @@ const isValidToken = () => {
 
 
 /* fetch Interceptos */
-const fetchWithAuth = async (url, options) => {
+const fetch = async (url, options) => {
   try {
     if (isValidToken()) {
       const accessToken = localStorage.getItem('accessToken');
@@ -20,24 +23,31 @@ const fetchWithAuth = async (url, options) => {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json; charset=UTF-8',
       };
-      const response = await fetch(url, { ...options, headers });
+      const response = await orgFetch(url, { ...options, headers });
       console.log(">>>"+response.status)
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = '/Login'; 
+            localStorage.removeItem('token');
+            localStorage.removeItem('tokenExpiresIn');
+          window.location.href = '/login'; 
         } else if (response.status === 403) {
           alert("권한이 없습니다.");
+          window.location.href = '/login'; 
         } else {
           throw new Error('Request failed with status: ' + response.status);
         }
       }
       return response;
-    } else {
-       throw new Error ('Token is not valid');
-    }
+    } else 
+
+
+    throw new Error ('Token is not valid');
+    
   } catch (error) {
     console.error("fetchWithAuth Error:", error);
-    window.location.href = '/Login'; 
+    localStorage.removeItem('token');
+    localStorage.removeItem('tokenExpiresIn');
+    window.location.href = '/login'; 
     throw error;
   }
 
@@ -64,6 +74,8 @@ axios.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('tokenExpiresIn');
       if(error.response.status === 401) window.location.href = '/Login'; 
       if(error.response.status === 403) alert("권한이 없습니다.")
     }
@@ -71,4 +83,5 @@ axios.interceptors.response.use(
   }
 );
 
-export { fetchWithAuth, axios as default };
+
+export { fetch, axios as default };

@@ -3,8 +3,22 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+
 
 const Layout = () => {
+    const userNm = localStorage.getItem("userNm");
+    const logoutHandler = () => {
+        // localStorage.clear()
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('tokenExpiresIn');
+        localStorage.removeItem('authGrpCd');
+        localStorage.removeItem('userNm');
+        localStorage.removeItem('userId');
+        window.location.href = '/login'; 
+    };
+
     return (
         <div>
             <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" className="p-3">
@@ -23,10 +37,16 @@ const Layout = () => {
                       
                           <Nav.Link>                              
                               <Link className="text-decoration-none text-white" to="/weeklyreport">주간보고관리</Link>
-                          </Nav.Link>                          
+                          </Nav.Link>                     
                       </Nav>
-                    </Navbar.Collapse>                    
+                    </Navbar.Collapse>        
                 </Container>
+                <Col xs="auto" style={{float:"right", color:"white", paddingRight:"15px"}}>
+                    {userNm}님
+                </Col>
+                <Col xs="auto">
+                    <Button variant="secondary" onClick={logoutHandler}>LOGOUT</Button>
+                </Col>
             </Navbar>
             <main>
                 <Outlet />

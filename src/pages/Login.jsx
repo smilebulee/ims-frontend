@@ -35,6 +35,10 @@ const Login = () => {
                     // set token
                     localStorage.setItem('accessToken', data.accessToken);
                     localStorage.setItem('tokenExpiresIn', data.tokenExpiresIn);
+                    // set user info
+                    localStorage.setItem('userId', data.userId);
+                    localStorage.setItem('userNm', data.userNm);
+                    localStorage.setItem('authGrpCd', data.authGrpCd);
                     window.location.href = `/`  
                 }else{
                     alert(data.message)
@@ -48,6 +52,7 @@ const Login = () => {
         return (
             <div className="d-flex justify-content-center" style={{ minHeight: "100vh" }}>
                 <div className="align-self-center">
+                    <img src={process.env.PUBLIC_URL + '/logo.jpg'}  style={{ marginBottom: "10px"}}/>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group" style={{ minWidth: "25vw" }}>
                             <input type="text" className="form-control" id="userId" onChange={e => setUserId(e.target.value) } value={userId} placeholder="ID"/>
@@ -56,7 +61,7 @@ const Login = () => {
                             <input type="password" className="form-control" id="password" onChange={e => setPassword(e.target.value)} value={password} placeholder="PASSWORD"/>
                         </div>
                         <div className="form-group" style={{ minwidth: "25vw", marginTop: "20px", textAlign:"center" }}>
-                            <Button variant='btn btn-outline-info' type="submit" style={{ width:"85%"} }>로그인</Button>
+                            <Button variant='btn btn-outline-secondary' type="submit" style={{ width:"85%"} }>로그인</Button>
                         </div>
                     </form>
                 </div>
