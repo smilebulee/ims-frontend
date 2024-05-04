@@ -24,6 +24,8 @@ const Dept = () => {
 
     const [inputData, setInpuData] = useState({
         deptCd: '',
+        empGmId: '',
+        empPrId: '',
         deptName:'',
         empGm:'',
         empPr:'',
@@ -36,7 +38,10 @@ const Dept = () => {
     const [selectedUserInRow, setSelectedUserInRow] = useState("");
     const [rowData, setRowData] = useState([]);
     const [rowUserData, setRowUserData] = useState([]);
-    const [guBun, setguBun] = useState();
+    const [guBun, setguBun] = useState({
+        inputType: '',
+        userId:'',
+    });
 
     // 부서 컬럼 설정 onLoad
     const columnDefs = [
@@ -47,8 +52,17 @@ const Dept = () => {
         {headerName:"비고", field:"rmks", width:520},
     ];
 
+    // EnterKey
+    const activeEnter = (e) => {
+        console.log("hjTest: ",e.target)
+        if(e.key === "Enter") {
+            deptSelectClickEvent();
+        }
+      }
+
     // 부서명 조회
     const deptSelectClickEvent = () => {
+
         axios.get(process.env.REACT_APP_API_HOST + "/ims/dept/deptSelect", {
             params:{selectByDeptNm}
         }).then(response => {
@@ -72,14 +86,13 @@ const Dept = () => {
         setInpuData(selectedRow[0])
         handleModalOpen('third')
     }
-    console.log("asdasd : ", inputData)
     // 수정버튼 클릭 event
     const modifyClick = () => {
         
     }
 
     //  First Modal
-    // 부서등록버튼 event
+    // first Modal 등록버튼 event
     const deptNmRef = useRef(null);
     const empGmRef = useRef(null);
     const empPrRef = useRef(null);
@@ -88,7 +101,6 @@ const Dept = () => {
         e.preventDefault();
         
         if(inputData.deptName === "") {
-            console.log("asd");
             window.alert("부서명을 입력해주세요.");
             return deptNmRef.current.focus();
         }
@@ -104,11 +116,10 @@ const Dept = () => {
         }
 
         if(window.confirm("등록하시겠습니까?")) {
-            console.log("inputData : ", inputData)
             const data = {
               deptName: inputData.deptName,
-              empPr: inputData.empGm,
-              empGm: inputData.empPr,
+              empPr: inputData.empGmId,
+              empGm: inputData.empPrId,
               deptUseYn: 'Y',
               rmks:''
             }
@@ -138,11 +149,12 @@ const Dept = () => {
         }))
     }
     // inputData onChange
-    const handleInputDataChange = (type, value) => {
-        console.log(type, value)
+    const handleInputDataChange = (type, userId, userNm) => {
+        console.log("type : ", type , " userId : ", userId ," userNm : ", userNm)
         setInpuData((prev) => ({
             ...prev,
-            [type]:value
+            [type.userId]: userId,
+            [type.inputType]: userNm,
         }))
     }
 
@@ -179,9 +191,9 @@ const Dept = () => {
     // second Modal -> first Modal data
     const selectSecondModal = () => {
         const selectedUser = selectedUserInRow[0];
-        
+        console.log("selectedUser : ", selectedUser)
         // userNm 값 변수 넣기
-        handleInputDataChange(guBun,selectedUser?.userNm);
+        handleInputDataChange(guBun,selectedUser?.userId, selectedUser?.userNm);
         handleModalClose("second");
     }
 
@@ -189,10 +201,11 @@ const Dept = () => {
     const empSelectClickEvent = (e) => {
         e.preventDefault();
         
-        //  직원조회 검색 
+        //  직원조회 검색
         axios.get(process.env.REACT_APP_API_HOST + "/ims/user/userSelect", {
             params:{userNm}
         }).then(response => {
+            console.log("empSelect : ", response.data)
             setRowUserData(response.data);          
         }).catch(error => {
             console.log(error);
@@ -205,7 +218,6 @@ const Dept = () => {
     },[])
 
     const autoSizeAll = (param) => {
-        console.log("grid param ", param)       
         const allColumnIds = ['titlNm', 'workInfo', 'prgsHist', 'remarks'];
         //gridColumnApi.getAllColumns().forEach(column => allColumnIds.push(column.colId));;
         param.columnApi.autoSizeColumns(allColumnIds, false);
@@ -220,8 +232,8 @@ const Dept = () => {
                     <Col xs={4}>
                         <Form onSubmit={selectByDeptNm}>
                             <InputGroup>
-                                <Form.Label column xs={3} style={{margin: "auto"}}>부서명</Form.Label>
-                                <Form.Control type="text" placeholder="부서명" onChange={e => (setSelectByDeptNm(e.target.value))} value={selectByDeptNm}/>
+                                <Form.Label column xs={3} style={{margin: "auto"}}>부서명</Form.Label> 
+                                <Form.Control type="text" placeholder="부서명" onChange={e => (setSelectByDeptNm(e.target.value))} value= {selectByDeptNm}/>
                             </InputGroup>
                         </Form>
                     </Col>
@@ -262,7 +274,7 @@ const Dept = () => {
                     <Form.Group as={Row} className="mb-3" controlId="secondRow">
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>부서명</Form.Label>
                         <Col xs={7}>
-                            <Form.Control type="text" name="deptName" ref={deptNmRef} placeholder="부서명" onChange={e => handleInputDataChange("deptName", e.target.value)} value={inputData.deptName || ""}/>
+                            <Form.Control type="text" name="deptName" ref={deptNmRef} placeholder="부서명" onChange={e => setInpuData({deptName: e.target.value})} value={inputData.deptName || ""}/>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-3" controlId="thirdRow">
@@ -270,7 +282,7 @@ const Dept = () => {
                         <Col xs={7}>
                             <InputGroup>
                                 <Form.Control type="text" name="empGm" ref={empGmRef} placeholder="사업부장" style={{background:"#E6E6E6"}} value={inputData.empGm || ""} readOnly/>
-                                <InputGroup.Text style={{cursor:"pointer"}} onClick={() => handleClick('second', setguBun("empGm"))}><FaSearch/></InputGroup.Text>
+                                <InputGroup.Text style={{cursor:"pointer"}} onClick={() => handleClick('second', setguBun({inputType: "empGm", userId:"empGmId"}))}><FaSearch/></InputGroup.Text>
                             </InputGroup>
                         </Col>
                     </Form.Group>
@@ -279,15 +291,15 @@ const Dept = () => {
                         <Col xs={7}>
                             <InputGroup>
                                 <Form.Control type="text" name="empPr" placeholder="현장대리인" ref={empPrRef} style={{background:"#E6E6E6"}} value={inputData.empPr || ""} readOnly/>
-                                <InputGroup.Text style={{cursor:"pointer"}} onClick={() => handleClick('second', setguBun("empPr"))}><FaSearch/></InputGroup.Text>
+                                <InputGroup.Text style={{cursor:"pointer"}} onClick={() => handleClick('second', setguBun({inputType: "empPr",userId:"empPrId"}))}><FaSearch/></InputGroup.Text>
                            </InputGroup>
                         </Col>
                     </Form.Group>
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" className="btn_close" onClick={saveDept}>등록</Button>
-                <Button variant="secondary" className="btn_close" onClick={onReset}>초기화</Button>
+                <Button variant="secondary" className="btn_register" onClick={saveDept}>등록</Button>
+                <Button variant="secondary" className="btn_reset" onClick={onReset}>초기화</Button>
                 <Button variant="secondary" className="btn_close" onClick={() => handleModalClose('first')}>닫기</Button>
             </Modal.Footer>
         </Modal>
@@ -302,7 +314,7 @@ const Dept = () => {
                             <Col xs={7}>
                                 <InputGroup>
                                     <Form.Control type="text" name="userNm" placeholder="직원명" onChange={e => setUserNm(e.target.value)} value={userNm}/>
-                                    <Button variant="secondary" className="btn_close" onClick={empSelectClickEvent}>검색</Button>
+                                    <Button variant="secondary" className="btn_search" onClick={empSelectClickEvent}>검색</Button>
                                 </InputGroup>
                             </Col>
                         </Form.Group>
