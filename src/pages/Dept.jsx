@@ -26,11 +26,15 @@ const Dept = () => {
         deptCd: '',
         empGmId: '',
         empPrId: '',
-        deptName:'',
-        empGm:'',
-        empPr:'',
-        deptUseYn:'',
+        deptName: '',
+        empGm: '',
+        empPr: '',
+        deptUseYn: '',
         rmks: '',
+        regDate: '',
+        regEmpNo: '',
+        chgDate: '',
+        chgEmpNo: '',
     });
 
     const [userNm,setUserNm] = useState('');
@@ -52,14 +56,31 @@ const Dept = () => {
         {headerName:"비고", field:"rmks", width:520},
     ];
 
+    useEffect((e)=> {
+        // dept 데이터 가져오기
+        findAll();       
+    },[])
+
     // EnterKey
     const activeEnter = (e) => {
-        console.log("hjTest: ",e.target)
         if(e.key === "Enter") {
-            deptSelectClickEvent();
+            if(e.target.name === 'deptNm') {
+                deptSelectClickEvent();
+            } else if (e.target.name === 'userNm') {
+                empSelectClickEvent();
+            }
         }
       }
 
+    const handleDeptFormSubmit = (e) => {
+        e.preventDefault();
+        deptSelectClickEvent();;
+    }
+
+    const handleEmpFormSubmit = (e) => {
+        e.preventDefault();
+        empSelectClickEvent();
+    }
     // 부서명 조회
     const deptSelectClickEvent = () => {
 
@@ -76,19 +97,41 @@ const Dept = () => {
     const findAll = () => {
         fetch(process.env.REACT_APP_API_HOST + "/ims/dept/findAll")
         .then((res) => res.json())
-        .then((res) => setRowData(res));
+        .then((res) => {
+            const formattData = res.map(item => ({
+                ...item,
+                regDate: formatDate(item.regDate),
+                chgDate: formatDate(item.chgDate)
+            }));
+            setRowData(formattData);
+        });
+    }
+
+    // 날짜를 yyyyMMdd 형식으로 변환하는 함수
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}${month}${day}`;
     }
 
     // Grid DoubleClick modifyModal
     const onRowDoubleClicked = () => {
-
         //rowData 담아주기
         setInpuData(selectedRow[0])
         handleModalOpen('third')
     }
+    
     // 수정버튼 클릭 event
     const modifyClick = () => {
-        
+        axios.post(process.env.REACT_APP_API_HOST + "/ims/dept/deptModify", inputData).then(response => {
+            setInpuData(response.data);   
+            findAll();
+            handleModalClose('third')
+        }).catch(error => {
+            console.log(error);
+        })
     }
 
     //  First Modal
@@ -96,10 +139,9 @@ const Dept = () => {
     const deptNmRef = useRef(null);
     const empGmRef = useRef(null);
     const empPrRef = useRef(null);
-
+    
     const saveDept = (e) => {
         e.preventDefault();
-        
         if(inputData.deptName === "") {
             window.alert("부서명을 입력해주세요.");
             return deptNmRef.current.focus();
@@ -121,7 +163,11 @@ const Dept = () => {
               empPr: inputData.empGmId,
               empGm: inputData.empPrId,
               deptUseYn: 'Y',
-              rmks:''
+              rmks: formatDate(new Date()) + "신규등록",
+              regDate: formatDate(new Date()),
+              regEmpNo: 'test',
+              chgDate: formatDate(new Date()),
+              chgEmpNo: 'test',              
             }
             console.log("data : ",data)
             axios.post(process.env.REACT_APP_API_HOST + "/ims/dept/save", data).then(function(response) {
@@ -150,7 +196,6 @@ const Dept = () => {
     }
     // inputData onChange
     const handleInputDataChange = (type, userId, userNm) => {
-        console.log("type : ", type , " userId : ", userId ," userNm : ", userNm)
         setInpuData((prev) => ({
             ...prev,
             [type.userId]: userId,
@@ -165,7 +210,8 @@ const Dept = () => {
             onReset();
         } else {
             setUserNm('')
-            setRowUserData('')
+            setRowUserData([])
+            setSelectedUserInRow('');
         }
     }
 
@@ -176,64 +222,66 @@ const Dept = () => {
             deptCd: '',
             deptName: '',
             empGm: '',
-            empPr: ''
+            empPr: '',
+            rmks: '',
+            regDate: '',
+            regEmpNo: '',
+            chgDate: '',
+            chgEmpNo: '',
         }))
     }    
 
     // Second Modal
     // user 컬럼 설정
     const columnUserDefs= [
-        {headerName:"이름", field:"userNm", width:150, pinned: 'left', checkboxSelection: true},
-        {headerName:"ID", field:"userId", width:150, pinned: 'left'},
-        {headerName:"부서", field:"deptName", width:160, pinned: 'left'},
+        {headerName:"이름", field:"userNm", width:150, checkboxSelection: true},
+        {headerName:"ID", field:"userId", width:150},
+        {headerName:"부서", field:"deptName", width:160},
     ]
 
     // second Modal -> first Modal data
+    
     const selectSecondModal = () => {
         const selectedUser = selectedUserInRow[0];
         console.log("selectedUser : ", selectedUser)
         // userNm 값 변수 넣기
         handleInputDataChange(guBun,selectedUser?.userId, selectedUser?.userNm);
+        console.log("guBun : ", guBun, selectedUser?.userId, selectedUser?.userNm);
         handleModalClose("second");
     }
 
     // 직원 조회 검색 클릭 event
     const empSelectClickEvent = (e) => {
-        e.preventDefault();
-        
         //  직원조회 검색
         axios.get(process.env.REACT_APP_API_HOST + "/ims/user/userSelect", {
             params:{userNm}
         }).then(response => {
-            console.log("empSelect : ", response.data)
-            setRowUserData(response.data);          
+            if(response.data.length === 1){
+                handleInputDataChange(guBun,response.data[0].userId, response.data[0].userNm);
+                handleModalClose("second");
+            } else {
+                setRowUserData(response.data);          
+            }
         }).catch(error => {
             console.log(error);
         })
     }    
 
-    useEffect((e)=> {
-        // dept 데이터 가져오기
-        findAll();       
-    },[])
-
     const autoSizeAll = (param) => {
         const allColumnIds = ['titlNm', 'workInfo', 'prgsHist', 'remarks'];
         //gridColumnApi.getAllColumns().forEach(column => allColumnIds.push(column.colId));;
         param.columnApi.autoSizeColumns(allColumnIds, false);
-        
     };
-
     return (
         <>
         <Stack gap={2} style={{ width: "100%",height:500}}>
             <div className="bg-light border rounded p-3">
-                <Row className="mb-2">
+                <Row>
                     <Col xs={4}>
-                        <Form onSubmit={selectByDeptNm}>
+                        <Form onSubmit={handleDeptFormSubmit}>
                             <InputGroup>
                                 <Form.Label column xs={3} style={{margin: "auto"}}>부서명</Form.Label> 
-                                <Form.Control type="text" placeholder="부서명" onChange={e => (setSelectByDeptNm(e.target.value))} value= {selectByDeptNm}/>
+                                <Form.Control type="text" name="deptNm" placeholder="부서명" onChange={e => setSelectByDeptNm(e.target.value)} value={selectByDeptNm} onKeyDown={e => activeEnter(e)}/>
                             </InputGroup>
                         </Form>
                     </Col>
@@ -279,14 +327,14 @@ const Dept = () => {
                     </Form.Group>
                     <Form.Group as={Row} className="mb-3" controlId="thirdRow">
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>사업부장</Form.Label>
-                        <Col xs={7}>
+                        <Col xs={7}>    
                             <InputGroup>
                                 <Form.Control type="text" name="empGm" ref={empGmRef} placeholder="사업부장" style={{background:"#E6E6E6"}} value={inputData.empGm || ""} readOnly/>
                                 <InputGroup.Text style={{cursor:"pointer"}} onClick={() => handleClick('second', setguBun({inputType: "empGm", userId:"empGmId"}))}><FaSearch/></InputGroup.Text>
                             </InputGroup>
                         </Col>
                     </Form.Group>
-                    <Form.Group as={Row} className="mb-3" controlId="fourthRow">
+                    <Form.Group as={Row} controlId="fourthRow">
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>현장대리인</Form.Label>
                         <Col xs={7}>
                             <InputGroup>
@@ -308,13 +356,13 @@ const Dept = () => {
                     <Modal.Title >직원조회</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
+                    <Form onSubmit={handleEmpFormSubmit}>
                         <Form.Group as={Row} className="mb-3" controlId="secondRow">
                             <Form.Label column xs={4}><span style={{ color: "red" }}>*</span>직원조회</Form.Label>
                             <Col xs={7}>
                                 <InputGroup>
-                                    <Form.Control type="text" name="userNm" placeholder="직원명" onChange={e => setUserNm(e.target.value)} value={userNm}/>
-                                    <Button variant="secondary" className="btn_search" onClick={empSelectClickEvent}>검색</Button>
+                                    <Form.Control type="text" name="userNm" placeholder="직원명" onChange={e => setUserNm(e.target.value)} value={userNm} onKeyDown={e => activeEnter(e)}/>
+                                    <Button variant="secondary" className="btn_search" onClick={() => empSelectClickEvent()}>검색</Button>
                                 </InputGroup>
                             </Col>
                         </Form.Group>
@@ -327,8 +375,8 @@ const Dept = () => {
                                         resizable:true}}                             
                                      rowSelection={'single'}
                                      onSelectionChanged={e => setSelectedUserInRow(e.api.getSelectedRows())}
-                                     domLayout='autoHeight'                
-                                    >
+                                     domLayout='autoHeight'
+                                     >
                         </AgGridReact>
                     </div>
                 </Modal.Body>
@@ -353,7 +401,7 @@ const Dept = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>부서명</Form.Label>
                         <Col xs={7}>
                             <InputGroup>
-                                <Form.Control type="text" name="deptNm" onChange={e => handleInputDataChange("deptName", e.target.value)} value={inputData.deptName}/>
+                                <Form.Control type="text" onChange={e => handleInputDataChange("deptName", e.target.value)} value={inputData.deptName}/>
                             </InputGroup>
                         </Col>
                     </Form.Group>
@@ -362,7 +410,7 @@ const Dept = () => {
                         <Col xs={7}>
                             <InputGroup>
                                 <Form.Control type="text" name="empGm" style={{background:"#E6E6E6"}} value={inputData.empGm}/>
-                                <InputGroup.Text style={{cursor:"pointer"}} onClick={() => handleClick('second', setguBun("empGm"))}><FaSearch/></InputGroup.Text>
+                                <InputGroup.Text style={{cursor:"pointer"}} onClick={() => handleClick('second', setguBun({inputType: "empGm", userId:"empGmId"}))}><FaSearch/></InputGroup.Text>
                             </InputGroup>
                         </Col>
                     </Form.Group>
@@ -371,7 +419,7 @@ const Dept = () => {
                         <Col xs={7}>
                             <InputGroup>
                                 <Form.Control type="text" name="empPr" style={{background:"#E6E6E6"}} value={inputData.empPr}/>
-                                <InputGroup.Text style={{cursor:"pointer"}} onClick={() => handleClick('second', setguBun("empPr"))}><FaSearch/></InputGroup.Text>
+                                <InputGroup.Text style={{cursor:"pointer"}} onClick={() => handleClick('second', setguBun({inputType: "empPr",userId:"empPrId"}))}><FaSearch/></InputGroup.Text>
                             </InputGroup>
                         </Col>
                     </Form.Group>
@@ -380,7 +428,6 @@ const Dept = () => {
                         <Col xs={7}>
                             <InputGroup>
                                 <Form.Select placeholder="" name="deptUseYn" onChange={e => setInpuData(e.target.value)} value={inputData.deptUseYn}>
-                                <option value="">전체</option>
                                 <option value="Y">사용</option>
                                 <option value="N">미사용</option>
                             </Form.Select>
