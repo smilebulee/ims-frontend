@@ -2,6 +2,12 @@ import axios from 'axios';
 
 const {fetch : orgFetch} = window;
 
+const hasToken = () => {
+  if(!isValidToken()){
+    window.location.href = '/login'; 
+  }
+};
+
 
 const isValidToken = () => {
   const accessToken = localStorage.getItem('accessToken');
@@ -87,4 +93,4 @@ axios.interceptors.response.use(
 );
 
 
-export { fetch, axios as default };
+export { fetch, hasToken, axios as default };

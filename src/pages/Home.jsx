@@ -1,5 +1,13 @@
+import React, { useEffect } from "react";
+import { hasToken } from '../InterceptConfig';
+
 
 const Home = () => {
+
+  useEffect(() => {
+    hasToken();
+  });
+
   return (
     <div>
       <h1>홈</h1>
