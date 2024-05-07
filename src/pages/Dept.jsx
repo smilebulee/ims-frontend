@@ -322,7 +322,7 @@ const Dept = () => {
                     <Form.Group as={Row} className="mb-3" controlId="secondRow">
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>부서명</Form.Label>
                         <Col xs={7}>
-                            <Form.Control type="text" name="deptName" ref={deptNmRef} placeholder="부서명" onChange={e => setInpuData({deptName: e.target.value})} value={inputData.deptName || ""}/>
+                            <Form.Control type="text" name="deptName" ref={deptNmRef} placeholder="부서명" onChange={e => setInpuData(prev => ({...prev, deptName: e.target.value}))} value={inputData.deptName || ""}/>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-3" controlId="thirdRow">
@@ -401,7 +401,7 @@ const Dept = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>부서명</Form.Label>
                         <Col xs={7}>
                             <InputGroup>
-                                <Form.Control type="text" onChange={e => handleInputDataChange("deptName", e.target.value)} value={inputData.deptName}/>
+                                <Form.Control type="text" onChange={e => setInpuData(prev => ({...prev, deptName: e.target.value}))} value={inputData.deptName}/>
                             </InputGroup>
                         </Col>
                     </Form.Group>
@@ -427,7 +427,7 @@ const Dept = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>사용여부</Form.Label>
                         <Col xs={7}>
                             <InputGroup>
-                                <Form.Select placeholder="" name="deptUseYn" onChange={e => setInpuData(e.target.value)} value={inputData.deptUseYn}>
+                                <Form.Select placeholder="" name="deptUseYn" onChange={e => setInpuData(prev => ({...prev, deptUseYn: e.target.value}))} value={inputData.deptUseYn}>
                                 <option value="Y">사용</option>
                                 <option value="N">미사용</option>
                             </Form.Select>
