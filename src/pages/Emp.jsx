@@ -21,15 +21,24 @@ const Emp = () => {
     const [selectedUserInRow, setSelectedUserInRow] = useState("");
     const [modalOpen, setModalOpen] = useState({
         first: false,
-        second: false,
         third: false,
     })
     const [buttonTextId, setButtonTextId] = useState('중복확인');
     const [buttonTextNm, setButtonTextNm] = useState('중복확인');
-    const [password, setPassword] = useState('');
+    const [modifyNm, setModifyNm] = useState('성명 재설정');
 
+    const userIdRef = useRef(null);
+    const passwordRef = useRef(null);
+    const userNmRef = useRef(null);
+    const jobStrtTmRef = useRef(null);
+    const jobEndTmRef = useRef(null);
+    const authGrpCdRef = useRef(null);
+    const deptCdRef = useRef(null);
+    const selfPrYnRef = useRef(null);
+    const cdNmRef = useRef(null);
+
+    // 직원 전체 데이터 가져오기
     useEffect((e)=> {
-        // 직원 전체 데이터 가져오기
         findAll();       
     },[])
 
@@ -55,7 +64,7 @@ const Emp = () => {
         return `${year}${month}${day}`;
     }
     
-    const [inputData, setInpuData] = useState({
+    const [inputData, setInputData] = useState({
         userId: '',
         authGrpCd: '',
         deptCd: '',
@@ -106,7 +115,7 @@ const Emp = () => {
         {headerName:"비고", field:"cdNm", width:520},
     ];
 
-    // 해당 직원이 퇴직일 경우에만 그리드에 표시
+    // 해당 직원이 퇴직일 경우에만 직원 list에 표시
     const modifiedRowData = rowData.map(row => ({
         ...row,
         cdNm: row.cdNm === "퇴직" ? row.cdNm : ""
@@ -125,15 +134,17 @@ const Emp = () => {
             [step]:true
         }))
     }
+
     // ModalClose
     const handleModalClose = (step) => {
         setModalOpen((prev) => ({
             ...prev,
             [step]:false
         }))
+        onReset();
     }
 
-    // click Event
+    // <직원등록> 팝업 오픈
     const handleClick = (step) => {
         handleModalOpen(step)
         if(step === 'first'){
@@ -145,13 +156,14 @@ const Emp = () => {
         }
     }
 
-    // 초기화버튼 클릭시 
+    // [초기화] 클릭
+    // <직원등록> 시 select를 따로 안할 시 첫번째 option 값으로 자동등록 (authGrpCd, deptCd, jobStrtTm, jobEndTm, selfPrYn)
     const onReset = () => {
-        setInpuData((prev) => ({
+        setInputData((prev) => ({
             ...prev,
             userId: '',
-            authGrpCd: '',
-            deptCd: '',
+            authGrpCd: 'ADMIN', 
+            deptCd: '03',
             userNm: '',
             password: '',
             userStatusCd: '',
@@ -160,27 +172,33 @@ const Emp = () => {
             empPr: '',
             regDate: '',
             regUser: '',
-            jobStrtTm: '',
-            jobEndTm: '',
-            selfPrYn: '',
+            jobStrtTm: '07:00',
+            jobEndTm: '16:00',
+            selfPrYn: 'Y',
             cdNm: ''
         }))
-    }
 
-    //  First Modal
-    // first Modal 등록버튼 event
-    const userIdRef = useRef(null);
-    const passwordRef = useRef(null);
-    const userNmRef = useRef(null);
-    const jobStrtTmRef = useRef(null);
-    const jobEndTmRef = useRef(null);
-    const authGrpCdRef = useRef(null);
-    const deptCdRef = useRef(null);
-    const selfPrYnRef = useRef(null);
-    const userStatusCdRef = useRef(null);
-    const cdNmRef = useRef(null);
+        // <직원등록> 팝업 창 close 시 ID button 문구 및 readOnly 해제, 입력창 background-color 원래대로 변경
+        if (buttonTextId === 'ID 재설정') {
+            setButtonTextId('중복확인');
+            userIdRef.current.readOnly = false;
+            userIdRef.current.style = 'initial';
+        }
 
-    // valiation 분기처리 하기 > const data에 VO에 맞게 값 추가하기
+        // <직원등록> 팝업 창 close 시 성명 button 문구 및 readOnly 해제, 입력창 background-color 원래대로 변경
+        if (buttonTextNm === '성명 재설정') {
+            setButtonTextNm('중복확인');
+            userNmRef.current.readOnly = false;
+            userNmRef.current.style = 'initial';
+        }
+
+        // <직원정보 수정> 팝업 창 close 시 성명 button 문구 변경
+        if (modifyNm === '중복확인') {
+            setModifyNm('성명 재설정');
+        }
+    }   
+
+    /* ============== 직원등록 START ============== */
     const saveEmp = (e) => {
         e.preventDefault();
         if(inputData.userId === "") {
@@ -254,26 +272,44 @@ const Emp = () => {
                 });
         }
     }
+    /* ============== 직원등록 END ============== */
 
     // Grid DoubleClick modifyModal
     const onRowDoubleClicked = () => {
         //rowData 담아주기
-        setInpuData(selectedRow[0])
+        setInputData(selectedRow[0])
         handleModalOpen('third')
     }
 
     // 수정버튼 클릭 event
     const modifyClick = () => {
-        axios.post(process.env.REACT_APP_API_HOST + "/ims/emp/modifyEmp", inputData).then(response => {
-            setInpuData(response.data);   
-            findAll();
-            handleModalClose('third')
-        }).catch(error => {
-            console.log(error);
-        })
+
+        if(window.confirm("수정하시겠습니까?")) {
+            
+            const data = {
+                userId: inputData.userId,
+                password : inputData.password,
+                jobStrtTm: inputData.jobStrtTm,
+                jobEndTm: inputData.jobEndTm,
+                authGrpCd : inputData.authGrpCd,
+                deptCd : inputData.deptCd,
+                selfPrYn : inputData.selfPrYn,
+                updUser: 'test', // 수정직원
+            };
+            console.log("data : ",data);
+            axios.post(process.env.REACT_APP_API_HOST + "/ims/emp/modifyEmp", data)
+                .then(function(response) {
+                    alert("직원수정이 완료되었습니다.");
+                    findAll();
+                    handleModalClose("first");
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        }
     }
 
-    // ID 중복확인 START
+    /* ============== ID 중복확인 START ============== */
     const checkIdDuplicate = async () => {
         try {
             if (!inputData.userId) {
@@ -302,18 +338,19 @@ const Emp = () => {
             alert('중복 확인 중 오류가 발생했습니다.');
         }
     }
+
     const handleIdButtonClick = () => {
         if (buttonTextId === 'ID 재설정') {
             setButtonTextId('중복확인');
             userIdRef.current.readOnly = false;
-            userIdRef.current.style.backgroundColor = 'initial';
+            userIdRef.current.style = 'initial';
         } else {
             checkIdDuplicate();
         }
     }
-    // ID 중복확인 END
+    /* ============== ID 중복확인 END ============== */
 
-    // 성명 중복확인 START
+    /* ============== 등록 창 내에서 성명 중복확인 START ============== */
     const checkNmDuplicate = async () => {
         try {
             if (!inputData.userNm) {
@@ -337,13 +374,12 @@ const Emp = () => {
                 setButtonTextNm('성명 재설정');
             }
         } catch (error) {
-            console.error('Error checking duplicate:', error);
             alert('중복 확인 중 오류가 발생했습니다.');
         }
     }
 
     const handleNmButtonClick = () => {
-        if (buttonTextNm === '성명 재설정') {
+        if (buttonTextNm === '성명 재설정' ) {
             setButtonTextNm('중복확인');
             userNmRef.current.readOnly = false;
             userNmRef.current.style.backgroundColor = 'initial';
@@ -351,12 +387,56 @@ const Emp = () => {
             checkNmDuplicate();
         }
     }
-    // 성명 중복확인 END
+    /* ============== 등록 창 내에서 성명 중복확인 END ============== */
 
-    // 비밀번호 * 표시
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
+    /* ============== 직원 삭제 START ============== */
+    const deleteClick = async () => {
+        const userId = inputData.userId; // Replace with your logic to get the userId
+        console.log(userId)
+
+        if (!userId) {
+            alert('User ID is required');
+            return;
+        }
+
+        const confirmed = window.confirm("삭제하시겠습니까?");
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_HOST}/ims/emp/${inputData.userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                alert("삭제되었습니다.");
+                handleModalClose('third'); // 모달창 close
+                findAll(); // 직원 list reload
+            } else {
+                alert("삭제하는 데 실패했습니다.");
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('error');
+        }
     };
+    /* ============== 직원 삭제 END ============== */
+
+    // 수정 팝업 내 성명 재설정 버튼을 누를 시
+    const nmModifyClick = () => {
+        setModifyNm('중복확인');
+
+    }
+
+    // 수정 팝업 내 [재조회] 버튼 누를 시
+    const reloadClick = () => {
+        
+    }
+
     return (
         <>
             <Stack gap={2} style={{ width: "100%",height:500}}>
@@ -412,12 +492,12 @@ const Emp = () => {
                                     name="userId"
                                     ref={userIdRef}
                                     placeholder="ID"
-                                    onChange={e => setInpuData(prev => ({ ...prev, userId: e.target.value }))}
+                                    onChange={e => setInputData(prev => ({ ...prev, userId: e.target.value }))}
                                     value={inputData.userId || ""}
                                 />
                                 <Button variant="primary" onClick={handleIdButtonClick}>{buttonTextId}</Button>
                             </InputGroup>
-                            <p style={{ fontSize: '10px', color: '#A6A6A6' }}> {">"} ID는 수정 불가능합니다. 수정필요시 삭제 후 재등록 해야합니다. (단, 이전기록 사용불가)</p>
+                            <p style={{ fontSize: '10px', color: '#A6A6A6' }}> {">"} ID는 영문, 숫자로 4~12자로 입력해주세요.</p>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-3" controlId="thirdRow">
@@ -425,12 +505,13 @@ const Emp = () => {
                         <Col xs={7}>
                             <InputGroup>
                                 <Form.Control
-                                    type="text"
+                                    type="password"
                                     name="password"
                                     ref={passwordRef}
                                     placeholder="비밀번호"
-                                    onChange={handlePasswordChange}
-                                    value={password}
+                                    autoComplete="new-password"
+                                    onChange={e => setInputData(prev => ({ ...prev, password: e.target.value }))}
+                                    value={inputData.password || ""}
                                 />
                             </InputGroup>
                             <p style={{ fontSize: '10px', color: '#A6A6A6' }}> {">"} 비밀번호는 영문, 숫자로 4~12자로 입력해주세요.</p>
@@ -444,8 +525,9 @@ const Emp = () => {
                                     type="text"
                                     name="userNm"
                                     ref={userNmRef}
-                                    placeholder="ID"
-                                    onChange={e => setInpuData(prev => ({ ...prev, userNm: e.target.value }))}
+                                    autoComplete="new-name"
+                                    placeholder="성명"
+                                    onChange={e => setInputData(prev => ({ ...prev, userNm: e.target.value }))}
                                     value={inputData.userNm || ""}
                                 />
                                 <Button variant="primary" onClick={handleNmButtonClick}>{buttonTextNm}</Button>
@@ -458,8 +540,7 @@ const Emp = () => {
                         <Col xs={7}>    
                             <InputGroup>
                                 {/* jobStrtTm selectBox */}
-                                <Form.Select name="jobStrtTm" ref={jobStrtTmRef} onChange={e => setInpuData(prev => ({...prev, jobStrtTm: e.target.value}))} value={inputData.jobStrtTm || ""}>
-                                    <option value="">선택</option>
+                                <Form.Select name="jobStrtTm" ref={jobStrtTmRef} onChange={e => setInputData(prev => ({...prev, jobStrtTm: e.target.value}))} value={inputData.jobStrtTm || ""}>
                                     {[...Array(5).keys()].map(hour => {
                                         const currentHour = hour + 7;
                                         const hourString = currentHour.toString().padStart(2, '0');
@@ -476,8 +557,7 @@ const Emp = () => {
                                         );
                                     })}
                                 </Form.Select>
-                                <Form.Select name="jobEndTm" ref={jobEndTmRef} onChange={e => setInpuData(prev => ({...prev, jobEndTm: e.target.value}))} value={inputData.jobEndTm || ""}>
-                                    <option value="">선택</option>
+                                <Form.Select name="jobEndTm" ref={jobEndTmRef} onChange={e => setInputData(prev => ({...prev, jobEndTm: e.target.value}))} value={inputData.jobEndTm || ""}>
                                     {[...Array(12).keys()].map(hour => {
                                         const currentHour = hour + 16;
                                         const hourString = currentHour.toString().padStart(2, '0');
@@ -503,8 +583,7 @@ const Emp = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>권한</Form.Label>
                         <Col xs={7}>
                             <InputGroup>
-                                <Form.Select name="authGrpCd" ref={authGrpCdRef} onChange={e => setInpuData(prev => ({...prev, authGrpCd: e.target.value}))} value={inputData.authGrpCd || ""}>
-                                    <option value="">선택</option>
+                                <Form.Select name="authGrpCd" ref={authGrpCdRef} onChange={e => setInputData(prev => ({...prev, authGrpCd: e.target.value}))} value={inputData.authGrpCd || ""}>
                                     <option value="ADMIN">관리자</option>
                                     <option value="USER">일반사용자</option>
                                 </Form.Select>
@@ -515,8 +594,7 @@ const Emp = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>부서</Form.Label>
                         <Col xs={7}>    
                             <InputGroup>
-                                <Form.Select name="authGrpCd" ref={deptCdRef} onChange={e => setInpuData(prev => ({...prev, deptCd: e.target.value}))} value={inputData.deptCd || ""}>
-                                    <option value="">선택</option>
+                                <Form.Select name="deptCd" ref={deptCdRef} onChange={e => setInputData(prev => ({...prev, deptCd: e.target.value}))} value={inputData.deptCd || ""}>
                                     <option value="03">디스플레이팀</option>
                                     <option value="04">실트론팀</option>
                                     <option value="05">경영지원실</option>
@@ -545,8 +623,7 @@ const Emp = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>셀프승인</Form.Label>
                         <Col xs={7}>    
                             <InputGroup>
-                                <Form.Select name="selfPrYn" ref={selfPrYnRef} onChange={e => setInpuData(prev => ({...prev, selfPrYn: e.target.value}))} value={inputData.selfPrYn || ""}>
-                                    <option value="">선택</option>
+                                <Form.Select name="selfPrYn" ref={selfPrYnRef} onChange={e => setInputData(prev => ({...prev, selfPrYn: e.target.value}))} value={inputData.selfPrYn || ""}>
                                     <option value="Y">Y</option>
                                     <option value="N">N</option>
                                 </Form.Select>
@@ -574,23 +651,33 @@ const Emp = () => {
                     <Form.Group as={Row} className="mb-3">
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>ID</Form.Label>
                         <Col xs={7}>
-                            <Form.Control type="text" name="deptCd" style={{background:"#E6E6E6"}} value={inputData.userId} readOnly/>
-                            <p style={{fontSize:10, color: "red"}}> * ID는 수정불가합니다</p>
+                            <Form.Control type="text" name="userId" style={{background:"#E6E6E6"}} value={inputData.userId} readOnly/>
+                            <p style={{fontSize:10, color: "#A6A6A6"}}> {">"} ID는 수정불가능합니다. 수정필요시 삭제 후 재등록 해야합니다. (단, 이전기록 사용불가)</p>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-3">
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>비밀번호</Form.Label>
                         <Col xs={7}>
-                            <Form.Control type="password" name="password" value={inputData.password}/>
-                            <p style={{fontSize:10, color: "#A6A6A6"}}> 	{">"} 비밀번호는 영문, 숫자로 4~12자로 입력해주세요.</p>
+                        <InputGroup>
+                                <Form.Control
+                                    type="password"
+                                    name="password"
+                                    ref={passwordRef}
+                                    placeholder="비밀번호"
+                                    autoComplete="new-password"
+                                    onChange={e => setInputData(prev => ({ ...prev, password: e.target.value }))}
+                                    value={inputData.password || ""}
+                                />
+                            </InputGroup>
+                            <p style={{fontSize:10, color: "#A6A6A6"}}> {">"} 비밀번호는 영문, 숫자로 4~12자로 입력해주세요.</p>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-3">
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>성명</Form.Label>
                         <Col xs={7}>
                             <InputGroup>
-                                <Form.Control type="text" name="userNm" value={inputData.userNm}/>
-                                <Button variant="primary">성명 재설정</Button>  
+                                <Form.Control type="text" name="userNm" value={inputData.userNm} />
+                                <Button variant="primary" onClick={nmModifyClick}>{modifyNm}</Button>
                             </InputGroup>
                             <p style={{ fontSize: '10px', color: '#A6A6A6' }}> {">"} 동일한 성명이 선등록되어있을 경우 성명+숫자로 입력해주세요. (예: 홍길동1, 홍길동2)</p>
                         </Col>
@@ -600,7 +687,7 @@ const Emp = () => {
                         <Col xs={7}>    
                             <InputGroup>
                                 {/* jobStrtTm selectBox */}
-                                <Form.Select name="jobStrtTm" ref={jobStrtTmRef} onChange={e => setInpuData(prev => ({...prev, jobStrtTm: e.target.value}))} value={inputData.jobStrtTm || ""}>
+                                <Form.Select name="jobStrtTm" ref={jobStrtTmRef} onChange={e => setInputData(prev => ({...prev, jobStrtTm: e.target.value}))} value={inputData.jobStrtTm || ""}>
                                     {[...Array(5).keys()].map(hour => {
                                         const currentHour = hour + 7;
                                         const hourString = currentHour.toString().padStart(2, '0');
@@ -617,7 +704,7 @@ const Emp = () => {
                                         );
                                     })}
                                 </Form.Select>
-                                <Form.Select name="jobEndTm" ref={jobEndTmRef} onChange={e => setInpuData(prev => ({...prev, jobEndTm: e.target.value}))} value={inputData.jobEndTm || ""}>
+                                <Form.Select name="jobEndTm" ref={jobEndTmRef} onChange={e => setInputData(prev => ({...prev, jobEndTm: e.target.value}))} value={inputData.jobEndTm || ""}>
                                     {[...Array(12).keys()].map(hour => {
                                         const currentHour = hour + 16;
                                         const hourString = currentHour.toString().padStart(2, '0');
@@ -643,7 +730,7 @@ const Emp = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>권한</Form.Label>
                         <Col xs={7}>    
                             <InputGroup>
-                                <Form.Select name="authGrpCd" ref={authGrpCdRef} onChange={e => setInpuData(prev => ({...prev, authGrpCd: e.target.value}))} value={inputData.authGrpCd || ""}>
+                                <Form.Select name="authGrpCd" ref={authGrpCdRef} onChange={e => setInputData(prev => ({...prev, authGrpCd: e.target.value}))} value={inputData.authGrpCd || ""}>
                                     <option value="ADMIN">관리자</option>
                                     <option value="USER">일반사용자</option>
                                 </Form.Select>
@@ -654,7 +741,7 @@ const Emp = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>부서</Form.Label>
                         <Col xs={7}>    
                             <InputGroup>
-                                <Form.Select name="authGrpCd" ref={deptCdRef} onChange={e => setInpuData(prev => ({...prev, deptCd: e.target.value}))} value={inputData.deptCd || ""}>
+                                <Form.Select name="authGrpCd" ref={deptCdRef} onChange={e => setInputData(prev => ({...prev, deptCd: e.target.value}))} value={inputData.deptCd || ""}>
                                     <option value="03">디스플레이팀</option>
                                     <option value="04">실트론팀</option>
                                     <option value="05">경영지원실</option>
@@ -686,7 +773,7 @@ const Emp = () => {
                             <Form.Select 
                                 name="selfPrYn" 
                                 ref={selfPrYnRef} 
-                                onChange={e => setInpuData(prev => ({...prev, selfPrYn: e.target.value}))} 
+                                onChange={e => setInputData(prev => ({...prev, selfPrYn: e.target.value}))} 
                                 value={inputData.selfPrYn || ""}
                             >
                                 {inputData.selfPrYn === "Y" ? (
@@ -708,20 +795,20 @@ const Emp = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>재직여부</Form.Label>
                         <Col xs={7}>    
                             <InputGroup>
-                                <Form.Select name="cdNm" ref={cdNmRef} onChange={e => setInpuData(prev => ({...prev, cdNm: e.target.value}))} value={inputData.cdNm || ""}>
+                                <Form.Select name="cdNm" ref={cdNmRef} onChange={e => setInputData(prev => ({...prev, cdNm: e.target.value}))} value={inputData.cdNm || ""}>
                                     <option value="재직">재직</option>
-                                    <option value="퇴사">퇴사</option>
+                                    <option value="퇴직">퇴직</option>
                                 </Form.Select>
                             </InputGroup>
-                            <p style={{ fontSize: '10px', color: '#A6A6A6' }}> {">"} 퇴사한 직원의 경우, '퇴사'를 선택해주세요.</p>
+                            <p style={{ fontSize: '10px', color: '#A6A6A6' }}> {">"} 퇴사한 직원의 경우, '퇴직'을 선택해주세요.</p>
                         </Col>
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" className="btn_modify" onClick={modifyClick} >수정</Button>
-                    <Button variant="secondary" className="btn_refresh" /*onClick={deleteClick}*/ >재조회</Button>
-                    <Button variant="secondary" className="btn_delete" /*onClick={deleteClick}*/ >삭제</Button>
-                    <Button variant="secondary" className="btn_close" onClick={() => handleModalClose('third')}>닫기</Button>
+                    <Button variant="secondary" className="btn_reload" onClick={reloadClick} >재조회</Button>
+                    <Button variant="secondary" className="btn_delete" onClick={deleteClick} >삭제</Button>
+                    <Button variant="secondary" className="btn_close" onClick={() => handleModalClose("third")}>닫기</Button>
                 </Modal.Footer>
         </Modal>
         </>
