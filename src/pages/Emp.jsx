@@ -26,20 +26,22 @@ const Emp = () => {
     const [buttonTextId, setButtonTextId] = useState('중복확인');
     const [buttonTextNm, setButtonTextNm] = useState('중복확인');
     const [modifyNm, setModifyNm] = useState('성명 재설정');
+    const [isReadOnly, setIsReadOnly] = useState(true);  // readOnly 상태를 관리하는 state 추가
 
     const userIdRef = useRef(null);
     const passwordRef = useRef(null);
     const userNmRef = useRef(null);
+    const userNmDetailRef = useRef(null);
     const jobStrtTmRef = useRef(null);
     const jobEndTmRef = useRef(null);
     const authGrpCdRef = useRef(null);
     const deptCdRef = useRef(null);
     const selfPrYnRef = useRef(null);
-    const cdNmRef = useRef(null);
+    const userStatusCdRef = useRef(null);
 
     // 직원 전체 데이터 가져오기
     useEffect((e)=> {
-        findAll();       
+        findAll();
     },[])
 
 
@@ -159,6 +161,7 @@ const Emp = () => {
     // [초기화] 클릭
     // <직원등록> 시 select를 따로 안할 시 첫번째 option 값으로 자동등록 (authGrpCd, deptCd, jobStrtTm, jobEndTm, selfPrYn)
     const onReset = () => {
+        debugger;
         setInputData((prev) => ({
             ...prev,
             userId: '',
@@ -193,9 +196,9 @@ const Emp = () => {
         }
 
         // <직원정보 수정> 팝업 창 close 시 성명 button 문구 변경
-        if (modifyNm === '중복확인') {
-            setModifyNm('성명 재설정');
-        }
+        debugger;
+        setModifyNm('성명 재설정');
+
     }   
 
     /* ============== 직원등록 START ============== */
@@ -283,17 +286,19 @@ const Emp = () => {
 
     // 수정버튼 클릭 event
     const modifyClick = () => {
-
+debugger;
         if(window.confirm("수정하시겠습니까?")) {
             
             const data = {
                 userId: inputData.userId,
                 password : inputData.password,
+                userNm : inputData.userNm,
                 jobStrtTm: inputData.jobStrtTm,
                 jobEndTm: inputData.jobEndTm,
                 authGrpCd : inputData.authGrpCd,
                 deptCd : inputData.deptCd,
                 selfPrYn : inputData.selfPrYn,
+                userStatusCd : inputData.userStatusCd,
                 updUser: 'test', // 수정직원
             };
             console.log("data : ",data);
@@ -301,7 +306,7 @@ const Emp = () => {
                 .then(function(response) {
                     alert("직원수정이 완료되었습니다.");
                     findAll();
-                    handleModalClose("first");
+                    handleModalClose("third");
                 })
                 .catch(function(error) {
                     console.log(error);
@@ -352,6 +357,7 @@ const Emp = () => {
 
     /* ============== 등록 창 내에서 성명 중복확인 START ============== */
     const checkNmDuplicate = async () => {
+        debugger;
         try {
             if (!inputData.userNm) {
                 alert('성명을 입력하세요.');
@@ -378,13 +384,42 @@ const Emp = () => {
         }
     }
 
+    /* ============== 상세 창 내에서 성명 중복확인 START ============== */
+    const detailCheckNmDuplicate = async () => {
+        debugger;
+        try {
+            if (!inputData.userNm) {
+                alert('성명을 입력하세요.');
+                return;
+            }
+            const url = `${process.env.REACT_APP_API_HOST}/ims/emp/check-userNm/${inputData.userNm}`;
+            const response = await axios.get(url);
+            const data = response.data;
+            console.log(data)
+            if (data) {
+                alert('이미 사용중인 성명입니다.\n성명+숫자로 재입력해주세요.\n(예: 홍길동1, 홍길동2)');
+            } else {
+                if (!/^.{2,}$/.test(inputData.userNm)) {
+                    alert('직원 성명은 두 글자 이상 입력해 주세요.');
+                    return;
+                }
+                
+                alert('사용 가능한 성명입니다.');
+            }
+        } catch (error) {
+            alert('중복 확인 중 오류가 발생했습니다.');
+        }
+    }
+
     const handleNmButtonClick = () => {
+        debugger;
         if (buttonTextNm === '성명 재설정' ) {
             setButtonTextNm('중복확인');
             userNmRef.current.readOnly = false;
-            userNmRef.current.style.backgroundColor = 'initial';
+            userNmRef.current.style.backgroundColor = '#ffffff';
         } else {
             checkNmDuplicate();
+            
         }
     }
     /* ============== 등록 창 내에서 성명 중복확인 END ============== */
@@ -428,8 +463,24 @@ const Emp = () => {
 
     // 수정 팝업 내 성명 재설정 버튼을 누를 시
     const nmModifyClick = () => {
-        setModifyNm('중복확인');
+        debugger;
+        if(modifyNm == "성명 재설정") {
+            setModifyNm('중복확인');
+            setIsReadOnly(false);  // 버튼 클릭 시 readOnly 해제
+            userNmDetailRef.current.style.backgroundColor = '#ffffff';
+        } else if (modifyNm == "중복확인") {
+            setModifyNm('성명 재설정');
+            setIsReadOnly(true);
 
+            // 중복확인 함수
+            //detailCheckNmDuplicate();
+
+            debugger;
+            if(detailCheckNmDuplicate()) {
+                userNmDetailRef.current.style.backgroundColor = '#E6E6E6';
+            }
+            
+        }
     }
 
     // 수정 팝업 내 [재조회] 버튼 누를 시
@@ -458,18 +509,18 @@ const Emp = () => {
                 </div>
                 <div className="ag-theme-alpine" style={{width: "100%"}}>
                     <AgGridReact columnDefs={columnDefs} rowData={modifiedRowData}
-                                defaultColDef={{
-                                    sortable: true,
-                                    resizable:true}}                             
-                                rowSelection={'single'}
-                                onRowDataUpdated={autoSizeAll}
-                                onRowDoubleClicked={onRowDoubleClicked}
-                                onSelectionChanged={e => setSelectedRow(e.api.getSelectedRows())}
-                                domLayout='autoHeight'    
-                                pagination={true}
-                                paginationPageSize={10}
-                                rowStyle={{cursor: "pointer"}}
-                                >
+                        defaultColDef={{
+                            sortable: true,
+                            resizable:true}}                             
+                        rowSelection={'single'}
+                        onRowDataUpdated={autoSizeAll}
+                        onRowDoubleClicked={onRowDoubleClicked}
+                        onSelectionChanged={e => setSelectedRow(e.api.getSelectedRows())}
+                        domLayout='autoHeight'    
+                        pagination={true}
+                        paginationPageSize={10}
+                        rowStyle={{cursor: "pointer"}}
+                        >
                     </AgGridReact>
                 </div>
             </Stack>
@@ -669,16 +720,24 @@ const Emp = () => {
                                     value={inputData.password || ""}
                                 />
                             </InputGroup>
-                            <p style={{fontSize:10, color: "#A6A6A6"}}> {">"} 비밀번호는 영문, 숫자로 4~12자로 입력해주세요.</p>
+                            <p style={{fontSize:10, color: "#E6E6E6"}}> {">"} 비밀번호는 영문, 숫자로 4~12자로 입력해주세요.</p>
                         </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-3">
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>성명</Form.Label>
                         <Col xs={7}>
-                            <InputGroup>
-                                <Form.Control type="text" name="userNm" value={inputData.userNm} />
-                                <Button variant="primary" onClick={nmModifyClick}>{modifyNm}</Button>
-                            </InputGroup>
+                        <InputGroup>
+                            <Form.Control 
+                                type="text" 
+                                name="userNm" 
+                                ref={userNmDetailRef}
+                                value={inputData.userNm} 
+                                style={{background:"#E6E6E6"}}
+                                readOnly={isReadOnly}  // readOnly 상태를 state로 제어
+                                onChange={(e) => setInputData({ ...inputData, userNm: e.target.value })}  // 입력값 변경 시 state 업데이트
+                            />
+                            <Button variant="primary" onClick={nmModifyClick}>{modifyNm}</Button>
+                        </InputGroup>
                             <p style={{ fontSize: '10px', color: '#A6A6A6' }}> {">"} 동일한 성명이 선등록되어있을 경우 성명+숫자로 입력해주세요. (예: 홍길동1, 홍길동2)</p>
                         </Col>
                     </Form.Group>
@@ -795,9 +854,9 @@ const Emp = () => {
                         <Form.Label column xs={4}><span style={{color: "red"}}>*</span>재직여부</Form.Label>
                         <Col xs={7}>    
                             <InputGroup>
-                                <Form.Select name="cdNm" ref={cdNmRef} onChange={e => setInputData(prev => ({...prev, cdNm: e.target.value}))} value={inputData.cdNm || ""}>
-                                    <option value="재직">재직</option>
-                                    <option value="퇴직">퇴직</option>
+                                <Form.Select name="userStatusCd" ref={userStatusCdRef} onChange={e => setInputData(prev => ({...prev, userStatusCd: e.target.value}))} value={inputData.userStatusCd || ""}>
+                                    <option value="2">재직</option>
+                                    <option value="1">퇴직</option>
                                 </Form.Select>
                             </InputGroup>
                             <p style={{ fontSize: '10px', color: '#A6A6A6' }}> {">"} 퇴사한 직원의 경우, '퇴직'을 선택해주세요.</p>
