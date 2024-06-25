@@ -1,11 +1,10 @@
-import { useRef, useState, useEffect, useCallback} from "react";
+import { useRef, useState, useEffect} from "react";
 import Stack from 'react-bootstrap/Stack';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import { FaSearch } from 'react-icons/fa';
 import { AgGridReact } from "ag-grid-react";
 import InputGroup from 'react-bootstrap/InputGroup';
 import 'ag-grid-community/styles/ag-grid.css';
@@ -57,15 +56,6 @@ const Emp = () => {
         });
     }
 
-    // 날짜를 yyyyMMdd 형식으로 변환하는 함수
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        return `${year}${month}${day}`;
-    }
-    
     const [inputData, setInputData] = useState({
         userId: '',
         authGrpCd: '',
@@ -83,13 +73,6 @@ const Emp = () => {
         selfPrYn: '',
         cdNm: ''
     });
-
-    // EnterKey
-    const activeEnter = (e) => {
-        if(e.key === "Enter") {
-            empSelectClickEvent();
-        }
-      }
 
     const handleEmpFormSubmit = (e) => {
         e.preventDefault();
@@ -143,7 +126,13 @@ const Emp = () => {
             ...prev,
             [step]:false
         }))
-        onReset();
+
+        if(step === 'first') {
+            onReset();
+        } else if(step === 'third') {
+            setModifyNm('성명 재설정'); // <직원정보 수정> 팝업 창 close 시 성명 button 문구 변경
+            return;
+        }
     }
 
     // <직원등록> 팝업 오픈
@@ -194,11 +183,6 @@ const Emp = () => {
             userNmRef.current.readOnly = false;
             userNmRef.current.style = 'initial';
         }
-
-        // <직원정보 수정> 팝업 창 close 시 성명 button 문구 변경
-        debugger;
-        setModifyNm('성명 재설정');
-
     }   
 
     /* ============== 직원등록 START ============== */
@@ -286,7 +270,6 @@ const Emp = () => {
 
     // 수정버튼 클릭 event
     const modifyClick = () => {
-debugger;
         if(window.confirm("수정하시겠습니까?")) {
             
             const data = {
@@ -357,7 +340,6 @@ debugger;
 
     /* ============== 등록 창 내에서 성명 중복확인 START ============== */
     const checkNmDuplicate = async () => {
-        debugger;
         try {
             if (!inputData.userNm) {
                 alert('성명을 입력하세요.');
@@ -405,21 +387,24 @@ debugger;
                 }
                 
                 alert('사용 가능한 성명입니다.');
+                setModifyNm('성명 재설정');
+                setIsReadOnly(true);
+                userNmDetailRef.current.style.backgroundColor = '#E6E6E6';
             }
+
+            return data;
         } catch (error) {
             alert('중복 확인 중 오류가 발생했습니다.');
         }
     }
 
     const handleNmButtonClick = () => {
-        debugger;
         if (buttonTextNm === '성명 재설정' ) {
             setButtonTextNm('중복확인');
             userNmRef.current.readOnly = false;
             userNmRef.current.style.backgroundColor = '#ffffff';
         } else {
             checkNmDuplicate();
-            
         }
     }
     /* ============== 등록 창 내에서 성명 중복확인 END ============== */
@@ -463,23 +448,12 @@ debugger;
 
     // 수정 팝업 내 성명 재설정 버튼을 누를 시
     const nmModifyClick = () => {
-        debugger;
-        if(modifyNm == "성명 재설정") {
+        if(modifyNm === "성명 재설정") {
             setModifyNm('중복확인');
             setIsReadOnly(false);  // 버튼 클릭 시 readOnly 해제
             userNmDetailRef.current.style.backgroundColor = '#ffffff';
-        } else if (modifyNm == "중복확인") {
-            setModifyNm('성명 재설정');
-            setIsReadOnly(true);
-
-            // 중복확인 함수
-            //detailCheckNmDuplicate();
-
-            debugger;
-            if(detailCheckNmDuplicate()) {
-                userNmDetailRef.current.style.backgroundColor = '#E6E6E6';
-            }
-            
+        } else if (modifyNm === "중복확인") {
+            detailCheckNmDuplicate();
         }
     }
 
